@@ -1,7 +1,7 @@
 {
   "Author": "tikliz",
-  "Name": "Necromancer's Timer",
-  "Punchline": "An autosplitter for FFXIV PotD.",
+  "Name": "Pomander of AutoSplits",
+  "Punchline": "An autosplitter for FFXIV primarily for PotD.",
   "Description": "A description that shows up in /xlplugins. List any major slash-command(s).",
   "ApplicableVersion": "any",
   "Tags": [
