@@ -11,6 +11,8 @@ public class Configuration : IPluginConfiguration
     public bool IsConfigWindowMovable { get; set; } = true;
     public bool IsConnectedLivesplit { get; set; } = false;
     public int LivesplitPort { get; set; } = 16834;
+    public bool UseTCP { get; set; } = false;
+    public bool Connect { get; set; } = false;
 
     public void Save() => Dalamud.PluginInterface.SavePluginConfig(this);
     

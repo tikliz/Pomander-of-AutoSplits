@@ -29,7 +29,8 @@ public class CommandHandler : IDisposable
         Plugin = plugin;
 
         commands = new Commands(plugin, command_all);
-        
+
+        command_all.Add(new KeyValuePair<List<string>, Action<string[]>>(Commands.command_default, (string[] args) => commands.OnDefault()));
         command_all.Add(new KeyValuePair<List<string>, Action<string[]>>(Commands.command_settings, (string[] args) => commands.OnSettings(args)));
         command_all.Add(new KeyValuePair<List<string>, Action<string[]>>(Commands.command_help, (string[] args) => commands.OnHelp()));
 
@@ -68,6 +69,8 @@ public class Commands
     }
 
     public static ImmutableArray<string> CommandName = ["/pomandero", "/splits"];
+
+    public static List<string> command_default = [""];
 
     public static List<string> command_help = ["help", "h"];
 

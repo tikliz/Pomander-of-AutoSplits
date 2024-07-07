@@ -4,13 +4,12 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
+using PomanderoSplit.Utils;
 
 namespace PomanderoSplit;
 
 public class EventSubscribers
 {
-    private bool resetSplits = false;
-
     private LiveSplitClient LiveSplitClient { get; init; }
 
     public EventSubscribers(LiveSplitClient liveSplitClient)
@@ -24,82 +23,88 @@ public class EventSubscribers
         Dalamud.Duty.DutyStarted += OnDutyStarted;
     }
 
-    private unsafe void OnConditionChange(ConditionFlag flag, bool value)
+    private void OnConditionChange(ConditionFlag flag, bool value)
     {
-        if (flag == ConditionFlag.InDeepDungeon && !value)
+        // deep dungeon stuff
+        if (LiveSplitClient.onRun)
         {
-            Dalamud.Chat.Print(new SeString(new UIForegroundPayload(60), new TextPayload("Paused splits!"), new UIForegroundPayload(0)));
-            LiveSplitClient.Pause();
+            if (flag == ConditionFlag.InDeepDungeon && !value)
+            {
+                Dalamud.Chat.Print(new SeString(new UIForegroundPayload(60), new TextPayload("Paused splits!"), new UIForegroundPayload(0)));
+                LiveSplitClient.Pause();
+            }
+            if (Dalamud.Conditions[ConditionFlag.InDeepDungeon])
+            {
+                DeepDungeonHelper.HandleConditions(flag, value, LiveSplitClient);
+            }
         }
 
-        if (flag == ConditionFlag.BetweenAreas && Dalamud.Conditions[ConditionFlag.InDeepDungeon])
+
+        if (flag == ConditionFlag.Occupied && value)
         {
-            Dalamud.Chat.Print(new SeString(new UIForegroundPayload(60), new TextPayload("Changed floors maybe."), new UIForegroundPayload(0)));
-            LiveSplitClient.StartOrSplit();
-            LogDeepDungeonData();
+            Dalamud.Log.Info($"{flag} : {value}");
         }
     }
 
     private void OnTerritoryChanged(ushort id)
     {
-        if (resetSplits) ResetSplits();
+        if (LiveSplitClient.resetSplits || !LiveSplitClient.deepDungeonEnd) LiveSplitClient.Reset();
     }
 
     private void OnDutyWiped(object? sender, ushort e)
     {
         Dalamud.Chat.Print("DUTY WIPED");
-        if (!Dalamud.Conditions[ConditionFlag.InDeepDungeon]) return;
+        // if (!Dalamud.Conditions[ConditionFlag.InDeepDungeon]) return;
 
         Dalamud.Chat.Print(new SeString(new UIForegroundPayload(73), new TextPayload("Run ended pause!"), new UIForegroundPayload(0)));
-        resetSplits = true;
-        LiveSplitClient.Pause();
+        LiveSplitClient.onRun = false;
+        LiveSplitClient.PauseQueueEnd();
     }
 
     private void OnDutyCompleted(object? sender, ushort e)
     {
-        if (!Dalamud.Conditions[ConditionFlag.InDeepDungeon]) return;
+        if (Dalamud.Conditions[ConditionFlag.InDeepDungeon])
+        {
+            if (DeepDungeonHelper.CheckRunFinished(LiveSplitClient))
+            {
+                Dalamud.Chat.Print(new SeString(new UIForegroundPayload(60), new TextPayload("Run finished pause!"), new UIForegroundPayload(0)));
+                LogHelper.ReportSuccess("Run finished!");
+                LiveSplitClient.Split();
+                LiveSplitClient.PauseQueueEnd();
+                LiveSplitClient.onRun = false;
+            }
+            else
+            {
+                Dalamud.Chat.Print(new SeString(new UIForegroundPayload(60), new TextPayload("Floorset finished pause!"), new UIForegroundPayload(0)));
+                LogHelper.ReportSuccess("Floorset finished pause!");
+                LiveSplitClient.Split();
+                LiveSplitClient.Pause();
+                LiveSplitClient.deepDungeonEnd = true;
+            }
+            return;
+        }
 
         Dalamud.Chat.Print(new SeString(new UIForegroundPayload(60), new TextPayload("Run finished pause!"), new UIForegroundPayload(0)));
-        resetSplits = true;
-        LiveSplitClient.Pause();
+        LogHelper.ReportSuccess("Run finished!");
+        LiveSplitClient.onRun = false;
+        LiveSplitClient.PauseQueueEnd();
     }
 
     private void OnDutyStarted(object? sender, ushort e)
     {
         if (!Dalamud.Conditions[ConditionFlag.InDeepDungeon]) return;
 
-        LiveSplitClient.Reset();
-        LiveSplitClient.StartOrSplit();
-        Dalamud.Chat.Print(new SeString(new UIForegroundPayload(60), new TextPayload("Reset and started splits!"), new UIForegroundPayload(0)));
-    }
-    
-    private void ResetSplits()
-    {
-        resetSplits = false;
-        Dalamud.Chat.Print(new SeString(new UIForegroundPayload(73), new TextPayload("Reset!"), new UIForegroundPayload(0)));
-        LiveSplitClient.Reset();
-    }
-
-    public unsafe InstanceContentDeepDungeon* GetInstanceContentDeepDungeon()
-    {
-        var instance = EventFramework.Instance();
-        return instance->GetInstanceContentDeepDungeon();
-    }
-
-    public unsafe void LogDeepDungeonData()
-    {
-        InstanceContentDeepDungeon* deep_dungeon_data = GetInstanceContentDeepDungeon();
-
-        if (deep_dungeon_data == null)
+        LiveSplitClient.onRun = true;
+        LiveSplitClient.TryReset();
+        if (!DeepDungeonHelper.IsStartingFloors())
         {
-            Dalamud.Log.Info("--- NULL DEEP DUNGEON DATA ---");
-            return;
+            LiveSplitClient.Resume();
         }
-
-        Dalamud.Log.Info($"Floor {deep_dungeon_data->Floor}");
-        Dalamud.Log.Info($"Recommended level? {deep_dungeon_data->GetRecommendedLevel()}");
-        Dalamud.Log.Info($"Passage Progress {deep_dungeon_data->PassageProgress}");
-        Dalamud.Log.Info($"Weapon level: {deep_dungeon_data->WeaponLevel}, Armor level: {deep_dungeon_data->ArmorLevel}");
+        else
+        {
+            LiveSplitClient.StartOrSplit();
+        }
+        Dalamud.Chat.Print(new SeString(new UIForegroundPayload(60), new TextPayload("Started timer!"), new UIForegroundPayload(0)));
     }
 
     public void Dispose()

@@ -1,6 +1,6 @@
 using ImGuiNET;
 
-namespace PomanderoSplit.Util;
+namespace PomanderoSplit.Utils;
 
 public static partial class Widget
 {

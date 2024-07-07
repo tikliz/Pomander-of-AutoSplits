@@ -1,31 +1,65 @@
 using System;
+using System.IO;
+using System.IO.Pipes;
 using System.Net.Sockets;
 using System.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.ImGuiNotification;
+using PomanderoSplit.Utils;
 
 namespace PomanderoSplit;
 
 public class LiveSplitClient : IDisposable
 {
     private Socket? SocketClient { get; set; }
+    private NamedPipeClientStream? pipeClientStream { get; set; }
+
+    public bool UseTCP { get; set; }
     public int Port { get; private set; }
 
     private const int ConnectionAttempts = 3;
 
+    public bool resetSplits = true;
+    public bool onRun = false;
+    public bool deepDungeonEnd = false;
+
     public LiveSplitClient(Plugin plugin)
     {
+        UseTCP = plugin.Configuration.UseTCP;
         Port = plugin.Configuration.LivesplitPort;
+        if (plugin.Configuration.Connect)
+        {
+            Connect();
+        }
     }
 
-    public void ChangePort(int Value)
+    internal void ChangePort(int Value)
     {
         Port = Value;
         Reconnect();
     }
 
-    public bool Status() => SocketClient?.Connected ?? false;
+    internal void ChangeTCP(bool value)
+    {
+        UseTCP = value;
+        if (!UseTCP)
+        {
+            Disconnect();
+        }
+    }
+
+    public bool Status()
+    {
+        if (UseTCP)
+        {
+            return SocketClient?.Connected ?? false;
+        }
+        else
+        {
+            return pipeClientStream?.IsConnected ?? false;
+        }
+    }
 
     public void Connect()
     {
@@ -35,38 +69,57 @@ public class LiveSplitClient : IDisposable
             return;
         }
 
-        for (var attempt = 0; attempt != ConnectionAttempts; ++attempt)
+        // use named pipe
+        if (!UseTCP)
         {
             try
             {
-                SocketClient?.Dispose(); // redundancy
-                SocketClient = new(SocketType.Stream, ProtocolType.Tcp);
-                SocketClient.Connect("localhost", Port);
+                pipeClientStream?.Dispose();
+                pipeClientStream = new(".", "LiveSplit", PipeDirection.InOut, PipeOptions.WriteThrough);
+                pipeClientStream?.Connect(TimeSpan.FromSeconds(5));
             }
             catch (Exception ex)
             {
-                Dalamud.Log.Debug($"Connect error: {ex}");
+                Dalamud.Log.Error($"Connect error: {ex}\n --- Please ensure that LiveSplit is running ---");
+                pipeClientStream?.Dispose();
+                pipeClientStream = null;
+            }
+        }
+        else
+        {
+            for (var attempt = 0; attempt != ConnectionAttempts; ++attempt)
+            {
+                try
+                {
+                    SocketClient?.Dispose(); // redundancy
+                    SocketClient = new(SocketType.Stream, ProtocolType.Tcp);
+                    SocketClient.Connect("localhost", Port);
+                }
+                catch (Exception ex)
+                {
+                    Dalamud.Log.Error($"Connect error: {ex}");
+                    SocketClient?.Dispose();
+                    SocketClient = null;
+                }
+
+                // TODO: Add delay betwen attempts
+
+                if (Status())
+                {
+                    Dalamud.Log.Info("Connection was successful.");
+                    LogHelper.ReportSuccess("Connection was successful.");
+                    return;
+                }
+
                 SocketClient?.Dispose();
                 SocketClient = null;
+
+                Dalamud.Log.Info($"Connection to port \'{Port}\', attempt {attempt}/{ConnectionAttempts}");
             }
 
-            // TODO: Add delay betwen attempts
-
-            if (Status())
-            {
-                Dalamud.Log.Info("Connection was successful.");
-                ReportSuccess("Connection was successful.");
-                return;
-            }
-
-            SocketClient?.Dispose();
-            SocketClient = null;
-
-            Dalamud.Log.Info($"Connection to port \'{Port}\', attempt {attempt}/{ConnectionAttempts}");
+            Dalamud.Log.Warning($"Failed to connect after {ConnectionAttempts} attempts");
+            LogHelper.ReportFailure($"Failed to connect");
         }
-
-        Dalamud.Log.Warning($"Failed to connect after {ConnectionAttempts} attempts");
-        ReportFailure($"Failed to connect");
     }
 
     public void Disconnect()
@@ -85,8 +138,8 @@ public class LiveSplitClient : IDisposable
             SocketClient?.Close();
             SocketClient?.Disconnect(false);
 
-            Dalamud.Log.Info("Closed socket client.");
-            ReportSuccess("Closed socket client.");
+            Dalamud.Log.Info("Closed connection.");
+            LogHelper.ReportSuccess("Closed connections.");
         }
         catch (Exception ex)
         {
@@ -94,6 +147,7 @@ public class LiveSplitClient : IDisposable
         }
         finally
         {
+            pipeClientStream?.Dispose();
             SocketClient?.Dispose();
             SocketClient = null;
         }
@@ -113,15 +167,24 @@ public class LiveSplitClient : IDisposable
             return;
         }
 
-        var formated = message;
-        if (!formated.EndsWith('\n')) formated += Environment.NewLine;
+        var formatted = message;
+        if (!formatted.EndsWith('\n')) formatted += Environment.NewLine;
 
-        var encoded = Encoding.ASCII.GetBytes(formated);
+        var encoded = Encoding.ASCII.GetBytes(formatted);
 
         try
         {
             Dalamud.Log.Debug($"Sending message: {message} | {encoded}");
-            SocketClient?.Send(encoded);
+            if (!UseTCP && pipeClientStream != null)
+            {
+                pipeClientStream.Write(encoded);
+                pipeClientStream.Flush();
+            }
+            else
+            {
+                
+                SocketClient?.Send(encoded);
+            }
         }
         catch (Exception ex)
         {
@@ -133,34 +196,40 @@ public class LiveSplitClient : IDisposable
     public void Dispose()
     {
         SocketClient?.Dispose();
+        pipeClientStream?.Dispose();
     }
-    
-    public void Reset() => SendMessage("reset");
+
+    public void TryReset()
+    {
+        deepDungeonEnd = false;
+        if (resetSplits)
+        {
+            resetSplits = false;
+            Dalamud.Chat.Print(new SeString(new UIForegroundPayload(73), new TextPayload("Reset!"), new UIForegroundPayload(0)));
+            Reset();
+        }
+    }
+
+    public void Reset()
+    {
+        resetSplits = false;
+        onRun = false;
+        deepDungeonEnd = false;
+        SendMessage("reset");
+    }
 
     public void StartOrSplit() => SendMessage("startorsplit");
 
+    public void Start() => SendMessage("play");
+
+    public void Resume() => SendMessage("resume");
+
+    public void Split() => SendMessage("split");
+
     public void Pause() => SendMessage("pause");
-
-    private static void ReportSuccess(string message)
+    public void PauseQueueEnd()
     {
-        Dalamud.Chat.Print(new SeString(new UIForegroundPayload(60), new TextPayload(message), new UIForegroundPayload(0)));
-        Dalamud.Notifications.AddNotification(new()
-        {
-            Title = message,
-            InitialDuration = TimeSpan.FromSeconds(20),
-            Type = NotificationType.Success
-        });
+        resetSplits = true;
+        SendMessage("pause");
     }
-
-    private static void ReportFailure(string message)
-    {
-        Dalamud.Chat.Print(new SeString(new UIForegroundPayload(73), new TextPayload(message), new UIForegroundPayload(0)));
-        Dalamud.Notifications.AddNotification(new()
-        {
-            Title = message,
-            InitialDuration = TimeSpan.FromSeconds(20),
-            Type = NotificationType.Error
-        });
-    }
-
 }

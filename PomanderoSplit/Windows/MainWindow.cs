@@ -3,7 +3,7 @@ using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
-using PomanderoSplit.Util;
+using PomanderoSplit.Utils;
 
 namespace PomanderoSplit.Windows;
 
