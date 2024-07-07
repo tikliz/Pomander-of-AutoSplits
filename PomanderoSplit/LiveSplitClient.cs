@@ -1,125 +1,150 @@
 using System;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.ImGuiNotification;
-using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.Game.Event;
-using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
 
 namespace PomanderoSplit;
 
-public class LiveSplitClient
+public class LiveSplitClient : IDisposable
 {
-    private Configuration configuration;
-    private IChatGui chatGui;
-    private INotificationManager notificationManager;
-    public Socket livesplitSocket = new(SocketType.Stream, ProtocolType.Tcp);
-    public int port { get; set; }
+    private Socket? SocketClient { get; set; }
+    public int Port { get; private set; }
 
-    const int CONNECTIONTIMEOUT = 3;
-    private int connectionTimeoutCount = 0;
+    private const int ConnectionAttempts = 3;
 
-    public LiveSplitClient(Plugin plugin, IChatGui chatGui, INotificationManager notificationManager)
+    public LiveSplitClient(Plugin plugin)
     {
-        this.chatGui = chatGui;
-        this.notificationManager = notificationManager;
-        configuration = plugin.Configuration;
-        port = configuration.LivesplitPort;
+        Port = plugin.Configuration.LivesplitPort;
     }
 
-    internal void UpdatePort()
+    public void ChangePort(int Value)
     {
-        port = configuration.LivesplitPort;
+        Port = Value;
+        Reconnect();
     }
 
-    internal void Connect()
+    public bool Status() => SocketClient?.Connected ?? false;
+
+    public void Connect()
     {
+        if (Status())
+        {
+            Dalamud.Log.Warning("Already connected.");
+            return;
+        }
+
+        for (var attempt = 0; attempt != ConnectionAttempts; ++attempt)
+        {
+            try
+            {
+                SocketClient?.Dispose(); // redundancy
+                SocketClient = new(SocketType.Stream, ProtocolType.Tcp);
+                SocketClient.Connect("localhost", Port);
+            }
+            catch (Exception ex)
+            {
+                Dalamud.Log.Debug($"Connect error: {ex}");
+                SocketClient?.Dispose();
+                SocketClient = null;
+            }
+
+            // TODO: Add delay betwen attempts
+
+            if (Status())
+            {
+                Dalamud.Log.Info("Connection was successful.");
+                ReportSuccess("Connection was successful.");
+                return;
+            }
+
+            SocketClient?.Dispose();
+            SocketClient = null;
+
+            Dalamud.Log.Info($"Connection to port \'{Port}\', attempt {attempt}/{ConnectionAttempts}");
+        }
+
+        Dalamud.Log.Warning($"Failed to connect after {ConnectionAttempts} attempts");
+        ReportFailure($"Failed to connect");
+    }
+
+    public void Disconnect()
+    {
+        if (!Status())
+        {
+            Dalamud.Log.Debug("LiveSplit connection is already off.");
+            SocketClient?.Dispose();
+            SocketClient = null;
+            return;
+        }
+
         try
         {
-            // Connect to the server.
-            if (!livesplitSocket.Connected)
-            {
-                livesplitSocket.Connect("localhost", port);
-                Plugin.Log.Info("Connection was successful.");
-                ReportSuccess("Connection was successful.");
-            }
-            else
-            {
-                Plugin.Log.Info("Already connected.");
-            }
-        }
-        catch (ObjectDisposedException)
-        {
-            Plugin.Log.Warning($"Connection was closed, recreating socket and retrying. {connectionTimeoutCount}/{CONNECTIONTIMEOUT}");
-            livesplitSocket = new(SocketType.Stream, ProtocolType.Tcp);
-            if (connectionTimeoutCount < CONNECTIONTIMEOUT)
-            {
-                connectionTimeoutCount += 1;
-                Connect();
-            }
-            else
-            {
-                Plugin.Log.Error($"Failed to connect after {connectionTimeoutCount} tries");
-                ReportFailure($"Failed to connect after {connectionTimeoutCount} tries");
-            }
+            SocketClient?.Shutdown(SocketShutdown.Both);
+            SocketClient?.Close();
+            SocketClient?.Disconnect(false);
+
+            Dalamud.Log.Info("Closed socket client.");
+            ReportSuccess("Closed socket client.");
         }
         catch (Exception ex)
         {
-            
-            Plugin.Log.Error($"Failed to connect: {ex}\n\n -- Please make sure the LiveSplit TCP server is up and running on PORT [{port}] --.");
-            ReportFailure("Failed to connect: Please make sure the LiveSplit TCP server is up and running on the right port.");
+            Dalamud.Log.Error($"Disconnection error: {ex}");
+        }
+        finally
+        {
+            SocketClient?.Dispose();
+            SocketClient = null;
         }
     }
 
-    internal void Disconnect()
-    {
-        if (livesplitSocket != null && livesplitSocket.Connected)
-        {
-            livesplitSocket.Shutdown(SocketShutdown.Both);
-            livesplitSocket.Close();
-            Plugin.Log.Info("Closed socket.");
-            ReportSuccess("Closed socket.");
-        }
-        else
-        {
-            Plugin.Log.Debug("LiveSplit connection is already off.");
-        }
-    }
-
-    internal void Reconnect()
+    public void Reconnect()
     {
         Disconnect();
         Connect();
     }
 
-    public void SendMessage(string message)
+    private void SendMessage(string message)
     {
-        if (!livesplitSocket.Connected)
+        if (!Status())
         {
-            Plugin.Log.Debug("SendMessage was requested while not connected.");
+            Dalamud.Log.Debug("SendMessage was requested while not connected.");
             return;
         }
-        // Convert the string message to a byte array.
-        string formatted_string = message;
-        if (!formatted_string.EndsWith('\n'))
-        {
-            formatted_string = formatted_string + Environment.NewLine;
-        }
-        byte[] byte_message = Encoding.ASCII.GetBytes(formatted_string);
-        Plugin.Log.Info($"Sending message: {message} | {byte_message}");
 
-        // Send the message to the server.
-        livesplitSocket.Send(byte_message);
+        var formated = message;
+        if (!formated.EndsWith('\n')) formated += Environment.NewLine;
+
+        var encoded = Encoding.ASCII.GetBytes(formated);
+
+        try
+        {
+            Dalamud.Log.Debug($"Sending message: {message} | {encoded}");
+            SocketClient?.Send(encoded);
+        }
+        catch (Exception ex)
+        {
+            Dalamud.Log.Error($"SendMessage error: {ex}");
+            Disconnect();
+        }
     }
 
-    private void ReportSuccess(string message)
+    public void Dispose()
     {
-        chatGui.Print(new SeString(new UIForegroundPayload(60), new TextPayload(message), new UIForegroundPayload(0)));
-        notificationManager.AddNotification(new()
+        SocketClient?.Dispose();
+    }
+    
+    public void Reset() => SendMessage("reset");
+
+    public void StartOrSplit() => SendMessage("startorsplit");
+
+    public void Pause() => SendMessage("pause");
+
+    private static void ReportSuccess(string message)
+    {
+        Dalamud.Chat.Print(new SeString(new UIForegroundPayload(60), new TextPayload(message), new UIForegroundPayload(0)));
+        Dalamud.Notifications.AddNotification(new()
         {
             Title = message,
             InitialDuration = TimeSpan.FromSeconds(20),
@@ -127,14 +152,15 @@ public class LiveSplitClient
         });
     }
 
-    private void ReportFailure(string message)
+    private static void ReportFailure(string message)
     {
-        chatGui.Print(new SeString(new UIForegroundPayload(73), new TextPayload(message), new UIForegroundPayload(0)));
-        notificationManager.AddNotification(new()
+        Dalamud.Chat.Print(new SeString(new UIForegroundPayload(73), new TextPayload(message), new UIForegroundPayload(0)));
+        Dalamud.Notifications.AddNotification(new()
         {
             Title = message,
             InitialDuration = TimeSpan.FromSeconds(20),
             Type = NotificationType.Error
         });
     }
+
 }

@@ -1,6 +1,4 @@
 ﻿using Dalamud.Configuration;
-using Dalamud.Plugin;
-using System.Net.Sockets;
 using System;
 
 namespace PomanderoSplit;
@@ -11,15 +9,16 @@ public class Configuration : IPluginConfiguration
     public int Version { get; set; } = 0;
 
     public bool IsConfigWindowMovable { get; set; } = true;
-    public bool SomePropertyToBeSavedAndWithADefault { get; set; } = true;
-
-    public bool IsConnectedLivesplit = false;
-
+    public bool IsConnectedLivesplit { get; set; } = false;
     public int LivesplitPort { get; set; } = 16834;
 
-    // the below exist just to make saving less cumbersome
-    public void Save()
+    public void Save() => Dalamud.PluginInterface.SavePluginConfig(this);
+    
+    public static Configuration Load()
     {
-        Plugin.PluginInterface.SavePluginConfig(this);
+        if (Dalamud.PluginInterface.GetPluginConfig() is Configuration config) return config;
+        config = new Configuration();
+        config.Save();
+        return config;
     }
 }

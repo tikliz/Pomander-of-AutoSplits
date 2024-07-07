@@ -1,13 +1,12 @@
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
 
-namespace PomanderoSplit.Widgets;
+namespace PomanderoSplit.Util;
 
-public static class StatusCircle
+public static partial class Widget
 {
-    public static void Draw()
+    public static void StatusCircle(bool status)
     {
-        if (Plugin.LiveSplitClient != null && Plugin.LiveSplitClient.livesplitSocket.Connected)
+        if (status)
         {
             ImGui.PushStyleColor(ImGuiCol.CheckMark, new System.Numerics.Vector4(0.0f, 1.0f, 0.0f, 1.0f)); // Green color
             ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(0.0f, 0.8f, 0.0f, 1.0f)); // Darker green when hovered
@@ -17,6 +16,7 @@ public static class StatusCircle
             ImGui.PushStyleColor(ImGuiCol.CheckMark, new System.Numerics.Vector4(1.0f, 0.0f, 0.0f, 1.0f)); // Red color
             ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(0.8f, 0.0f, 0.0f, 1.0f)); // Darker red when hovered
         }
+
         if (ImGui.RadioButton("", true))
         {
             // Button logic here (if any)
@@ -25,7 +25,7 @@ public static class StatusCircle
 
         if (ImGui.IsItemHovered())
         {
-            if (Plugin.LiveSplitClient != null && Plugin.LiveSplitClient.livesplitSocket.Connected)
+            if (status)
             {
                 ImGui.SetTooltip("CONNECTED TO LIVESPLIT");
             }

@@ -1,88 +1,84 @@
 ﻿using System;
-using System.Numerics;
-using System.Reflection;
+using System.Threading.Tasks;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using PomanderoSplit.Widgets;
+
+using PomanderoSplit.Util;
 
 namespace PomanderoSplit.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
-    private Configuration configuration;
+    private Plugin Plugin { get; init; }
 
-    // private LogHelper logHelper;
+    private int portValue = 0;
 
-    private int socketValue = 0;
     public ConfigWindow(Plugin plugin) : base("PomanderoSplit Tweaks")
     {
-        Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
-                ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize;
+        Plugin = plugin;
 
-        // Size = new Vector2(0, 0);
+        Flags = ImGuiWindowFlags.NoResize |
+            ImGuiWindowFlags.NoCollapse |
+            ImGuiWindowFlags.NoScrollbar |
+            ImGuiWindowFlags.NoScrollWithMouse |
+            ImGuiWindowFlags.AlwaysAutoResize;
         SizeCondition = ImGuiCond.Once;
-        
-        configuration = plugin.Configuration;
-        socketValue = configuration.LivesplitPort;
-        // logHelper = plugin.LogHelper;
+
+        portValue = Plugin.Configuration.LivesplitPort;
     }
 
     public void Dispose() { }
 
+    // fake ? nao lembro ter precisado fazer isso "Flags must be added or removed before Draw() is being called, or they won't apply"
     public override void PreDraw()
     {
-        // Flags must be added or removed before Draw() is being called, or they won't apply
-        if (configuration.IsConfigWindowMovable)
-        {
-            Flags &= ~ImGuiWindowFlags.NoMove;
-        }
-        else
-        {
-            Flags |= ImGuiWindowFlags.NoMove;
-        }
+        if (Plugin.Configuration.IsConfigWindowMovable) Flags &= ~ImGuiWindowFlags.NoMove;
+        else Flags |= ImGuiWindowFlags.NoMove;
     }
 
     public override void Draw()
     {
         // livesplit port input
-        bool port_changed = socketValue != configuration.LivesplitPort;
-        ImGui.BeginDisabled(!port_changed);
+        var portHasChanged = portValue != Plugin.Configuration.LivesplitPort;
+        ImGui.BeginDisabled(!portHasChanged);
         if (ImGui.Button("Save"))
         {
-            configuration.LivesplitPort = socketValue;
-            Plugin.LiveSplitClient?.UpdatePort();
-            configuration.Save();
-            Plugin.LiveSplitClient?.Reconnect();
+            Plugin.Configuration.LivesplitPort = portValue;
+            Plugin.Configuration.Save();
+
+            Plugin.LiveSplitClient.ChangePort(portValue);
         }
         ImGui.EndDisabled();
         ImGui.SameLine();
-        ImGui.InputInt("LiveSplit Port", ref socketValue, 0);
+        ImGui.InputInt("LiveSplit Port", ref portValue, 0);
 
         // connection test buttons
-        bool connected = Plugin.LiveSplitClient != null && Plugin.LiveSplitClient.livesplitSocket.Connected;
-        ImGui.BeginDisabled(connected);
+
+        ImGui.BeginDisabled(Plugin.LiveSplitClient.Status());
         if (ImGui.Button("CONNECT"))
         {
-            Plugin.LiveSplitClient?.Connect();
+            Plugin.LiveSplitClient.Connect();
+
+            // Task.Run(Plugin.LiveSplitClient.Connect);
         }
         ImGui.EndDisabled();
-        
         ImGui.SameLine();
-        ImGui.BeginDisabled(!connected);
+        ImGui.BeginDisabled(!Plugin.LiveSplitClient.Status());
         if (ImGui.Button("CLOSE CONNECTION"))
         {
-            Plugin.LiveSplitClient?.Disconnect();
+            Plugin.LiveSplitClient.Disconnect();
+            
+            // Task.Run(Plugin.LiveSplitClient.Disconnect);
         }
         ImGui.EndDisabled();
         ImGui.SameLine();
         if (ImGui.Button("SEND PLAY"))
         {
-            Plugin.LiveSplitClient?.SendMessage("startorsplit");
+            Plugin.LiveSplitClient.StartOrSplit();
         }
         ImGui.SameLine();
-        WidgetHelpers.RightAlign(40.0f);
-        StatusCircle.Draw();
-    }
+        Helpers.RightAlign(40.0f);
 
-    
+        Widget.StatusCircle(Plugin.LiveSplitClient.Status());
+    }
 }
