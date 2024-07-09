@@ -150,15 +150,13 @@ public class ConnectionManager : IDisposable
         else Dalamud.Framework.Update += OnLogin;
     }
 
-    public void StartOrSplit() => Send("startorsplit\n");
+    public void Begin() => Send("startorsplit\n");
 
-    public void Play() => Send("play\n");
-
-    public void Pause() => Send("pause\n");
-    
     public void Reset() => Send("reset\n");
 
     public void Split() => Send("split\n");
+
+    public void Pause() => Send("pause\n");
 
     public void Resume() => Send("resume\n");
 }

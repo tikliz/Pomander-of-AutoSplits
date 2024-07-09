@@ -12,14 +12,32 @@ public partial class ConfigWindow : Window, IDisposable
         using var tab = ImRaii.TabItem("Debug");
         if (!tab) return;
 
-        if (ImGui.Button("Send StartOrSplit")) Plugin.ConnectionManager.StartOrSplit();
-        if (ImGui.Button("Send Play")) Plugin.ConnectionManager.Play();
-        if (ImGui.Button("Send Pause")) Plugin.ConnectionManager.Pause();
+        if (ImGui.Button("Send Begin")) Plugin.ConnectionManager.Begin();
         if (ImGui.Button("Send Reset")) Plugin.ConnectionManager.Reset();
         if (ImGui.Button("Send Split")) Plugin.ConnectionManager.Split();
+        if (ImGui.Button("Send Pause")) Plugin.ConnectionManager.Pause();
         if (ImGui.Button("Send Resume")) Plugin.ConnectionManager.Resume();
 
         ImGui.Separator();
+
+        
+        
+        ImGui.Separator();
+        
+        if (ImGui.Button("Reset Run"))
+        {
+            Plugin.GenericRunManager.ResetRun();
+        }
+        
+        if (ImGui.Button("Create Run"))
+        {
+            Plugin.GenericRunManager.CreateRun();
+        }
+
+        ImGui.Separator();
+        
+        ImGui.Text($"{Plugin.GenericRunManager.CurrentRun()}");
+        
 
         if (ImGui.Button("Dummy Button"))
         {
