@@ -152,7 +152,7 @@ public class ConnectionManager : IDisposable
 
     public void StartOrSplit() => Send("startorsplit\n");
 
-    public void Start() => Send("play\n");
+    public void Play() => Send("play\n");
 
     public void Pause() => Send("pause\n");
     

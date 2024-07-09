@@ -1,21 +1,42 @@
+using System;
 using ImGuiNET;
+using PomanderoSplit.Connection;
 
 namespace PomanderoSplit.Utils;
 
 public static partial class Widget
 {
-    public static void StatusCircle(bool status)
+    public static void StatusCircle(ClientStatus status)
     {
-        if (status)
+        Action statusHandler = status switch
         {
-            ImGui.PushStyleColor(ImGuiCol.CheckMark, new System.Numerics.Vector4(0.0f, 1.0f, 0.0f, 1.0f)); // Green color
-            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(0.0f, 0.8f, 0.0f, 1.0f)); // Darker green when hovered
-        }
-        else
-        {
-            ImGui.PushStyleColor(ImGuiCol.CheckMark, new System.Numerics.Vector4(1.0f, 0.0f, 0.0f, 1.0f)); // Red color
-            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(0.8f, 0.0f, 0.0f, 1.0f)); // Darker red when hovered
-        }
+            ClientStatus.Connected => () =>
+            {
+                ImGui.PushStyleColor(ImGuiCol.CheckMark, new System.Numerics.Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(0.0f, 0.8f, 0.0f, 1.0f));
+            }
+            ,
+            ClientStatus.Disconnected => () =>
+            {
+                ImGui.PushStyleColor(ImGuiCol.CheckMark, new System.Numerics.Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(0.8f, 0.0f, 0.0f, 1.0f)); 
+            }
+            ,
+            ClientStatus.Error => () =>
+            {
+                ImGui.PushStyleColor(ImGuiCol.CheckMark, new System.Numerics.Vector4(1.0f, 1.0f, 0.0f, 1.0f));
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(0.8f, 0.8f, 0.0f, 1.0f));
+            }
+            ,
+            ClientStatus.NotInitialized => () =>
+            {
+                ImGui.PushStyleColor(ImGuiCol.CheckMark, new System.Numerics.Vector4(1.0f, 1.0f, 0.0f, 1.0f));
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(0.8f, 0.8f, 0.0f, 1.0f));
+            }
+            ,
+            _ => throw new Exception("Status not handled"),
+        };
+        statusHandler();
 
         if (ImGui.RadioButton("", true))
         {
@@ -25,17 +46,34 @@ public static partial class Widget
 
         if (ImGui.IsItemHovered())
         {
-            if (status)
+            Action tooltiphandler = status switch
             {
-                ImGui.SetTooltip("CONNECTED TO LIVESPLIT");
-            }
-            else
-            {
-                ImGui.SetTooltip("NOT CONNECTED TO LIVESPLIT");
-            }
+                ClientStatus.Connected => () =>
+                {
+                    ImGui.SetTooltip("Connected");
+                }
+                ,
+                ClientStatus.Disconnected => () =>
+                {
+                    ImGui.SetTooltip("Disconnected");
+                }
+                ,
+                ClientStatus.Error => () =>
+                {
+                    ImGui.SetTooltip("Error");
+                }
+                ,
+                ClientStatus.NotInitialized => () =>
+                {
+                    ImGui.SetTooltip("NotInitialized");
+                }
+                ,
+                _ => throw new Exception("Status not handled in tooltiphandler"),
+            };
+            tooltiphandler();
         }
     }
-    
+
     public static void RightAlign(float offset = 40.0f)
     {
         var windowSize = ImGui.GetWindowSize();

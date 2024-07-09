@@ -123,7 +123,7 @@ public class GenericRunManager
 
     public void Pause()
     {
-        if (CurrentRun != null && !CurrentRun.Pause())
+        if (CurrentRun != null && CurrentRun.Pause())
         {
             Plugin.ConnectionManager.Pause();
             Dalamud.Chat.Print("Pausing!");
@@ -249,6 +249,7 @@ public class GenericRunManager
 
     private void OnDutyCompleted(object? _, ushort __)
     {
+        MatchTrigger(TriggerType.DutyCompleted);
         // if (Dalamud.Conditions[ConditionFlag.InDeepDungeon])
         // {
         //     if (Helpers.GetCurrentFloor() == 100 || Helpers.GetCurrentFloor() == 200)

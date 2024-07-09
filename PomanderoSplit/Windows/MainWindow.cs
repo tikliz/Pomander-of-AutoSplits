@@ -32,7 +32,7 @@ public class MainWindow : Window, IDisposable
         ImGui.SameLine();
         Helpers.RightAlign(40.0f);
 
-        Widget.StatusCircle(Plugin.ConnectionManager.Status() == Connection.ClientStatus.Connected);
+        Widget.StatusCircle(Plugin.ConnectionManager.Status());
 
         ImGui.Spacing();
 

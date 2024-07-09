@@ -79,6 +79,13 @@ public class GenericRun
         Action<GenericRunManager> beginFun = (manager) => { manager.BeginOrResume(); };
         Action<GenericRunManager> progressFun = (manager) => { manager.StartOrSplit(); };
         Action<GenericRunManager> pauseFun = (manager) => { manager.Pause(); };
+
+        Action<GenericRunManager> bossKilled = (manager) =>
+        {
+            manager.Split();
+            manager.Pause();
+            manager.CurrentRun.Active = false;
+        };
         for (int i = 1; i <= floors; i++)
         {
             List<Trigger> triggers = new();
@@ -96,12 +103,14 @@ public class GenericRun
             }
             else
             {
-                Trigger loadingTrigger = new(TriggerType.MovingBetweenAreas, pauseFun);
+                Trigger loadingTrigger = new(TriggerType.LoadingHideUI, pauseFun);
                 triggers.Add(loadingTrigger);
                 Trigger resumeTrigger = new(TriggerType.MovedBetweenAreas, beginFun);
                 triggers.Add(resumeTrigger);
                 Trigger deathTrigger = new(TriggerType.ObjectiveFailed, pauseFun);
                 triggers.Add(deathTrigger);
+                Trigger dutyComplete = new(TriggerType.DutyCompleted, bossKilled);
+                triggers.Add(dutyComplete);
 
                 requiredTrigger = new(TriggerType.MovingBetweenAreas);
             }
@@ -128,16 +137,16 @@ public class GenericRun
     {
         if (Finished || (Completed ?? false)) throw new Exception("Invalid Operation");
         bool temp_active = Active;
-        // aaa
+        // 
         Dalamud.Chat.Print($"ACTIVE STATE: {Active}");
         RunStopwatch.Start();
         Active = true;
         IsPaused = false;
-        
+
         // Splits.Add((Helpers.GetCurrentFloor(), TimeSpan.Zero));
 
         Dalamud.Log.Debug($"DeepDungeonRun Begin, {DateTime.Now}: Done");
-        return temp_active;
+        return !temp_active;
     }
 
     public void Finish(bool CompletedSucefully = false)
@@ -155,13 +164,12 @@ public class GenericRun
 
     public bool Pause()
     {
-        if (Finished || !Active) throw new Exception($"Invalid Operation {IsPaused} || {Finished} || {!Active}");
+        if (Finished || !Active) throw new Exception("Invalid Operation");
         RunStopwatch.Stop();
-        bool temp = IsPaused;
         IsPaused = true;
 
         Dalamud.Log.Debug($"DeepDungeonRun Pause, {DateTime.Now}: Done");
-        return temp;
+        return true;
     }
 
     public bool Resume()
@@ -179,7 +187,7 @@ public class GenericRun
     {
         if (Active != true) throw new Exception("Invalid Operation");
         // Splits.Add((Helpers.GetCurrentFloor(), Duration));
-        
+
         if (CurrentSplit == null) throw new Exception("CurrentSplit is invalid");
         CurrentSplit?.Toggle();
         activeIdx++;
@@ -204,5 +212,5 @@ public class GenericRun
         Dalamud.Log.Debug($"DeepDungeonRun Continue, {DateTime.Now}: Done");
         return IsPaused ? 1 : 2;
     }
-    
+
 }
