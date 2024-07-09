@@ -20,7 +20,7 @@ public class Dalamud
     [PluginService] public static INotificationManager Notifications { get; private set; } = null!;
     //[PluginService] public static ISigScanner SigScanner { get; private set; } = null!;
     //[PluginService] public static IKeyState Keys { get; private set; } = null!;
-    [PluginService] public static IGameGui GameGui { get; private set; } = null!;
+    //[PluginService] public static IGameGui GameGui { get; private set; } = null!;
     //[PluginService] public static ITargetManager Targets { get; private set; } = null!;
     //[PluginService] public static IGameInteropProvider Interop { get; private set; } = null!;
 

@@ -1,6 +1,7 @@
 ﻿using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
-
+using PomanderoSplit.Connection;
+using PomanderoSplit.RunHandler;
 using PomanderoSplit.Windows;
 
 namespace PomanderoSplit;
@@ -10,8 +11,8 @@ public sealed class Plugin : IDalamudPlugin
     public Configuration Configuration { get; set; }
 
     public CommandHandler CommandHandler { get; private init; }
-    public LiveSplitClient LiveSplitClient { get; private init; }
-    public EventSubscribers EventSubscribers { get; private init; }
+    public ConnectionManager ConnectionManager { get; private init; }
+    public GenericRunManager GenericRunManager { get; private init; }
 
     public ConfigWindow ConfigWindow { get; private init; }
     public MainWindow MainWindow { get; private init; }
@@ -26,9 +27,9 @@ public sealed class Plugin : IDalamudPlugin
             Dalamud.Initialize(pluginInterface);
             Configuration = Configuration.Load();
 
-            LiveSplitClient = new(this);
+            ConnectionManager = new(this);
             CommandHandler = new(this);
-            EventSubscribers = new(LiveSplitClient);
+            GenericRunManager = new(this);
 
             ConfigWindow = new(this);
             MainWindow = new(this);
@@ -56,8 +57,8 @@ public sealed class Plugin : IDalamudPlugin
         MainWindow?.Dispose();
         ConfigWindow?.Dispose();
 
-        EventSubscribers?.Dispose();
+        GenericRunManager?.Dispose();
         CommandHandler?.Dispose();
-        LiveSplitClient?.Dispose();
+        ConnectionManager?.Dispose();
     }
 }

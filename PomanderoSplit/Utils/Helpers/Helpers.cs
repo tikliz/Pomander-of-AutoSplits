@@ -2,7 +2,7 @@ using ImGuiNET;
 
 namespace PomanderoSplit.Utils;
 
-public static class Helpers
+public static partial class Helpers
 {
     public static void RightAlign(float offset = 40.0f)
     {

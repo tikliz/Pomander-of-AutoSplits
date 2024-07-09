@@ -5,18 +5,8 @@ using Dalamud.Interface.ImGuiNotification;
 
 namespace PomanderoSplit.Utils;
 
-public static class LogHelper
+public static partial class LogHelper
 {
-    public static void Info(string message)
-    {
-        Dalamud.Log.Info(message);
-    }
-
-    public static void Error(string message)
-    {
-        Dalamud.Log.Error(message);
-    }
-
     public static void ReportSuccess(string message, int time = 20)
     {
         Dalamud.Chat.Print(new SeString(new UIForegroundPayload(60), new TextPayload(message), new UIForegroundPayload(0)));
