@@ -1,8 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Game.Text.SeStringHandling.Payloads;
-using Dalamud.Interface.ImGuiNotification;
 using PomanderoSplit.Utils;
 
 namespace PomanderoSplit.Connection;

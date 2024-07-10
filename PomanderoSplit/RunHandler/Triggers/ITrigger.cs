@@ -1,6 +1,6 @@
 using System;
 
-namespace PomanderoSplit.RunHandler;
+namespace PomanderoSplit.RunHandler.triggers;
 
 /// <summary>
 /// this class represent an trigger.

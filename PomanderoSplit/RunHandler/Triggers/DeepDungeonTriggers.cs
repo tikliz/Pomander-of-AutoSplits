@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Conditions;
 
-namespace PomanderoSplit.RunHandler;
+namespace PomanderoSplit.RunHandler.triggers;
 
 public class Trigger : ITrigger
 {
