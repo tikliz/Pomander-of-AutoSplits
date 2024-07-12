@@ -20,7 +20,7 @@ public class GenericRunManager : IDisposable
         Plugin = plugin;
     }
 
-    public void CreateRun()
+    public void CreateTestRun()
     {
         CurrentRun()?.Dispose();
 

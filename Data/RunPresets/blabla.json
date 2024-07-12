@@ -1,0 +1,153 @@
+{
+    "$type": "PomanderoSplit.RunPresets.RunPreset, PomanderoSplit",
+    "GenericRun": {
+      "$type": "PomanderoSplit.RunHandler.GenericRun, PomanderoSplit",
+      "Name": "blabla",
+      "Objectives": {
+        "$type": "PomanderoSplit.RunHandler.Objective[], PomanderoSplit",
+        "$values": [
+          {
+            "$type": "PomanderoSplit.RunHandler.Objective, PomanderoSplit",
+            "Name": "Objective 1",
+            "Begin": null,
+            "Split": {
+              "$type": "PomanderoSplit.RunHandler.triggers.ITrigger[], PomanderoSplit",
+              "$values": [
+                {
+                  "$type": "PomanderoSplit.RunHandler.triggers.TriggerOnConditionChange, PomanderoSplit",
+                  "Flags": {
+                    "$type": "System.Collections.Generic.List`1[[System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib]], System.Private.CoreLib",
+                    "$values": [
+                      {
+                        "$type": "System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib",
+                        "Item1": 4,
+                        "Item2": true
+                      },
+                      {
+                        "$type": "System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib",
+                        "Item1": 49,
+                        "Item2": false
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "Pause": null,
+            "Resume": null,
+            "End": {
+              "$type": "PomanderoSplit.RunHandler.triggers.ITrigger[], PomanderoSplit",
+              "$values": [
+                {
+                  "$type": "PomanderoSplit.RunHandler.triggers.TriggerEnd, PomanderoSplit",
+                  "Flags": {
+                    "$type": "System.Collections.Generic.List`1[[System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib]], System.Private.CoreLib",
+                    "$values": [
+                      {
+                        "$type": "System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib",
+                        "Item1": 45,
+                        "Item2": false
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "$type": "PomanderoSplit.RunHandler.Objective, PomanderoSplit",
+            "Name": "Objective 2",
+            "Begin": null,
+            "Split": {
+              "$type": "PomanderoSplit.RunHandler.triggers.ITrigger[], PomanderoSplit",
+              "$values": [
+                {
+                  "$type": "PomanderoSplit.RunHandler.triggers.TriggerTest, PomanderoSplit",
+                  "Flags": {
+                    "$type": "System.Collections.Generic.List`1[[System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib]], System.Private.CoreLib",
+                    "$values": [
+                      {
+                        "$type": "System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib",
+                        "Item1": 4,
+                        "Item2": true
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "Pause": null,
+            "Resume": null,
+            "End": {
+              "$type": "PomanderoSplit.RunHandler.triggers.ITrigger[], PomanderoSplit",
+              "$values": [
+                {
+                  "$type": "PomanderoSplit.RunHandler.triggers.TriggerEnd, PomanderoSplit",
+                  "Flags": {
+                    "$type": "System.Collections.Generic.List`1[[System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib]], System.Private.CoreLib",
+                    "$values": [
+                      {
+                        "$type": "System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib",
+                        "Item1": 45,
+                        "Item2": false
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "$type": "PomanderoSplit.RunHandler.Objective, PomanderoSplit",
+            "Name": "Objective 3",
+            "Begin": null,
+            "Split": null,
+            "Pause": null,
+            "Resume": null,
+            "End": {
+              "$type": "PomanderoSplit.RunHandler.triggers.ITrigger[], PomanderoSplit",
+              "$values": [
+                {
+                  "$type": "PomanderoSplit.RunHandler.triggers.TriggerTest, PomanderoSplit",
+                  "Flags": {
+                    "$type": "System.Collections.Generic.List`1[[System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib]], System.Private.CoreLib",
+                    "$values": [
+                      {
+                        "$type": "System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib",
+                        "Item1": 4,
+                        "Item2": true
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "BeginRunTriggers": {
+        "$type": "PomanderoSplit.RunHandler.triggers.ITrigger[], PomanderoSplit",
+        "$values": [
+          {
+            "$type": "PomanderoSplit.RunHandler.triggers.TriggerTest, PomanderoSplit",
+            "Flags": {
+              "$type": "System.Collections.Generic.List`1[[System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib]], System.Private.CoreLib",
+              "$values": [
+                {
+                  "$type": "System.ValueTuple`2[[Dalamud.Game.ClientState.Conditions.ConditionFlag, Dalamud],[System.Boolean, System.Private.CoreLib]], System.Private.CoreLib",
+                  "Item1": 4,
+                  "Item2": false
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "IsPreset": true,
+      "Status": 0,
+      "Splits": {
+        "$type": "System.Collections.Generic.List`1[[System.TimeSpan, System.Private.CoreLib]], System.Private.CoreLib",
+        "$values": []
+      }
+    }
+  }

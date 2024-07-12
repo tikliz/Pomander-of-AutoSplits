@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 
 using PomanderoSplit.RunHandler.triggers;
+using Newtonsoft.Json;
 
 namespace PomanderoSplit.RunHandler;
 
@@ -19,9 +20,12 @@ public enum RunState
 [Serializable]
 public class GenericRun : IDisposable
 {
-    public string Name { get; private init; }
-    public Objective[] Objectives { get; private init; }
-    public ITrigger[]? BeginRunTriggers { get; private init; }
+    public string Name { get; set; }
+    public Objective[] Objectives { get; set; }
+    public ITrigger[]? BeginRunTriggers { get; set; }
+
+    [JsonProperty]
+    private bool IsPreset { get; set; }
 
     public RunState Status { get; private set; } = RunState.InActive;
     public List<TimeSpan> Splits { get; private set; } = [];
@@ -32,13 +36,14 @@ public class GenericRun : IDisposable
     private readonly object runLock = new();
     private Stopwatch RunStopwatch { get; set; } = new();
 
-    public GenericRun(string name, Objective[] objectives, ITrigger[]? beginRun = null)
+    public GenericRun(string name, Objective[] objectives, ITrigger[]? beginRun = null, bool isPreset = false)
     {
         Name = name;
         Objectives = objectives;
         BeginRunTriggers = beginRun;
+        IsPreset = isPreset;
 
-        if (BeginRunTriggers != null) foreach (var trigger in BeginRunTriggers)
+        if (BeginRunTriggers != null && !IsPreset) foreach (var trigger in BeginRunTriggers)
         {
             try
             {
@@ -65,6 +70,11 @@ public class GenericRun : IDisposable
 
     public Objective CurrentObjective() => Objectives[Splits.Count];
     public TimeSpan Elapsed() => RunStopwatch.Elapsed;
+
+    public void SetBeginTriggers(ITrigger[] triggers)
+    {
+        this.BeginRunTriggers = triggers;
+    }
 
     public void Begin()
     {
@@ -123,7 +133,7 @@ public class GenericRun : IDisposable
 
             OnStatusChange.Invoke(this, EventArgs.Empty);
 
-            Dalamud.Log.Debug($"GenericRun Continue, Name {Name}: Done");
+            Dalamud.Log.Debug($"GenericRun Resume, Name {Name}: Done");
         }
     }
 

@@ -1,4 +1,4 @@
-# Necromancer's Timer
+# Pomander of AutoSplits
 
 
 

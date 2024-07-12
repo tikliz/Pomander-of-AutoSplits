@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Dalamud.Game.ClientState.Conditions;
 
 namespace PomanderoSplit.RunHandler.triggers;
 
 public class Trigger : ITrigger
 {
+    [JsonIgnore]
     public Action<bool> Finisher { get; set; } = (_) => { };
     private bool Activated { get; set; } = false;
 
@@ -30,9 +32,11 @@ public class Trigger : ITrigger
 
 public class TriggerEnd : ITrigger
 {
+    [JsonIgnore]
     public Action<bool> Finisher { get; set; } = (_) => { };
     private bool Activated { get; set; } = false;
-    
+
+    [JsonProperty]
     private List<(ConditionFlag, bool)> Flags { get; set; }
 
     public TriggerEnd(List<(ConditionFlag, bool)> flags)
@@ -46,7 +50,7 @@ public class TriggerEnd : ITrigger
         Activated = true;
         Dalamud.Conditions.ConditionChange += OnConditionChange;
     }
-    
+
     private void OnConditionChange(ConditionFlag flag, bool value)
     {
         foreach (var (cflag, cval) in Flags)
@@ -68,9 +72,11 @@ public class TriggerEnd : ITrigger
 
 public class TriggerTest : ITrigger
 {
+    [JsonIgnore]
     public Action<bool> Finisher { get; set; } = (_) => { };
     private bool Activated { get; set; } = false;
-    
+
+    [JsonProperty]
     private List<(ConditionFlag, bool)> Flags { get; set; }
     private int count = 0;
     private int countMax;
@@ -89,7 +95,7 @@ public class TriggerTest : ITrigger
         Activated = true;
         Dalamud.Conditions.ConditionChange += OnConditionChange;
     }
-    
+
     private void OnConditionChange(ConditionFlag flag, bool value)
     {
         foreach (var (cflag, cval) in Flags)

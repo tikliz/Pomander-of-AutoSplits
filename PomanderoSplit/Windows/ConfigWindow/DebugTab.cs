@@ -31,7 +31,7 @@ public partial class ConfigWindow : Window, IDisposable
         
         if (ImGui.Button("Create Run"))
         {
-            Plugin.GenericRunManager.CreateRun();
+            Plugin.GenericRunManager.CreateTestRun();
         }
 
         ImGui.Separator();

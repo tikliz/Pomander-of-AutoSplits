@@ -5,11 +5,15 @@
   <PropertyGroup>
     <Version>0.0.0.1</Version>
     <Description>A autosplitter plugin for FFXIV potd.</Description>
-    <PackageProjectUrl>https://github.com/tikliz/Necromancer-s-Timer</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/tikliz/Pomader-of-AutoSplits</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-  </ItemGroup>
+    <None Include="..\Data\RunPresets\**">
+      <Link>RunPresets\%(RecursiveDir)/%(FileName)%(Extension)</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+</ItemGroup>
 </Project>

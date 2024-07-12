@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
@@ -7,31 +8,20 @@ using PomanderoSplit.Utils;
 
 namespace PomanderoSplit.Windows;
 
-public class MainWindow : Window, IDisposable
+public partial class MainWindow : Window, IDisposable
 {
-    private static int indexRun = 0;
-    
-    private Plugin Plugin { get; init; }
 
-    public MainWindow(Plugin plugin) : base("PomanderoSplit")
+    public void DrawDebugTab()
     {
-        Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
-        SizeConstraints = new WindowSizeConstraints
-        {
-            MinimumSize = new Vector2(375, 330),
-            MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
-        };
-        Plugin = plugin;
-    }
+        using var tab = ImRaii.TabItem("Debug view");
+        if (!tab) return;
 
-    public override void Draw()
-    {
         DrawIndexArrows();
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.Spacing();
 
-        var data = Plugin.GenericRunManager.Runs[indexRun];
+        var data = Plugin.GenericRunManager.Runs[IndexRun];
         
         var text = $"Run {data.Name}";
         ImGui.Text(text);
@@ -53,26 +43,24 @@ public class MainWindow : Window, IDisposable
         }
     }
 
-    public void Dispose() { }
-
     private void DrawIndexArrows()
     {
         var size = Plugin.GenericRunManager.Runs.Count;
-        if (size < indexRun) indexRun = size;
+        if (size < IndexRun) IndexRun = size;
 
         float spacing = ImGui.GetStyle().ItemInnerSpacing.X;
         ImGui.PushButtonRepeat(true);
-        if (ImGui.ArrowButton("##left", ImGuiDir.Left))
+        if (ImGui.ArrowButton("##debug_left", ImGuiDir.Left))
         {
-            if (indexRun != 0) indexRun--;
+            if (IndexRun != 0) IndexRun--;
         }
         ImGui.SameLine(0.0f, spacing);
-        if (ImGui.ArrowButton("##right", ImGuiDir.Right))
+        if (ImGui.ArrowButton("##debug_right", ImGuiDir.Right))
         {
-            if (size != indexRun) indexRun++;
+            if (size != IndexRun) IndexRun++;
         }
         ImGui.PopButtonRepeat();
         ImGui.SameLine();
-        ImGui.Text($"index {indexRun} | size {size}");
+        ImGui.Text($"index {IndexRun} | size {size}");
     }
 }
