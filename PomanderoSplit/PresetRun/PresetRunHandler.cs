@@ -2,23 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Text.Json;
 using Dalamud.Game.ClientState.Conditions;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PomanderoSplit.RunHandler;
 using PomanderoSplit.RunHandler.triggers;
 
-namespace PomanderoSplit.RunPresets;
+namespace PomanderoSplit.PresetRuns;
 
-public class RunPresetHandler
+public class PresetRunHandler
 {
-    public List<RunPreset> Presets = [];
+    public List<PresetRun> Presets = [];
+    public PresetRun? SelectedPreset;
     private string defaultPath = Dalamud.PluginInterface.ConfigDirectory.FullName + @"\run_presets\";
     private string includedFilesPath() => Path.Combine(Dalamud.PluginInterface.AssemblyLocation.Directory?.FullName!, @"RunPresets");
     private DirectoryInfo dir;
 
     private readonly object dirLock = new();
 
-    public RunPresetHandler()
+    public PresetRunHandler()
     {
         lock (dirLock)
         {
@@ -42,7 +44,6 @@ public class RunPresetHandler
                 }
                 catch (Exception)
                 {
-                    //
                     throw;
                 }
             }
@@ -87,21 +88,23 @@ public class RunPresetHandler
                         );
                     }
 
-                    RunPreset runPreset = new RunPreset(path, genericRun);
+                    PresetRun runPreset = new PresetRun(path, null, name);
                     Presets.Add(runPreset);
                 }
             }
         }
     }
 
-    public void Save(RunPreset preset)
+    public void Save(PresetRun preset)
     {
         lock (dirLock)
         {
-            string jsonString = JsonConvert.SerializeObject(preset, Formatting.Indented, new JsonSerializerSettings()
+            var options = new JsonSerializerOptions
             {
-                TypeNameHandling = TypeNameHandling.All
-            });
+                WriteIndented = true,
+                IncludeFields = true,
+            };
+            string jsonString = JsonSerializer.Serialize(preset, options);
             File.WriteAllText(preset.FilePath, jsonString);
             Dalamud.Chat.Print($"Saved preset on {preset.FilePath}");
         }
@@ -111,13 +114,35 @@ public class RunPresetHandler
     {
         lock (dirLock)
         {
+#if DEBUG
+            Dalamud.Log.Debug($"PresetRunHandler, trying to read {file.FullName}");
+#endif
             string jsonString = File.ReadAllText(file.FullName);
             try
             {
-                return JsonConvert.DeserializeObject<GenericRun>(jsonString, new JsonSerializerSettings
+                var options = new JsonSerializerOptions
                 {
-                    TypeNameHandling = TypeNameHandling.All
-                });
+                    WriteIndented = true,
+                    IncludeFields = true,
+                };
+                using (JsonDocument document = JsonDocument.Parse(jsonString))
+                {
+                    JsonElement root = document.RootElement.GetProperty("GenericRun");
+                    string? name = root.GetProperty("Name").GetString();
+                    if (name == null) return null;
+
+                    JsonElement objectivesArray = root.GetProperty("Objectives");
+                    Objective[]? objectives = JsonSerializer.Deserialize<Objective[]>(objectivesArray, options);
+                    if (objectives == null) objectives = [];
+
+                    JsonElement beginTriggersArray = root.GetProperty("BeginRunTriggers");
+                    ITrigger[]? beginTriggers = JsonSerializer.Deserialize<ITrigger[]>(beginTriggersArray, options);
+                    if (beginTriggers == null) beginTriggers = [];
+                    // #if DEBUG
+                    // Dalamud.Log.Debug($"READ {name} - {objectives.Length} objectives - {beginTriggers.Length} triggers");
+                    // #endif
+                    return new GenericRun(name, objectives, beginTriggers, true);
+                }
             }
             catch (Exception e)
             {
@@ -133,6 +158,32 @@ public class RunPresetHandler
         // read file contents and get run name
         string temp = file.Name.Split('.')[0];
         return temp;
+    }
+
+    public void SetSelectedPreset(int idx)
+    {
+        if (idx > Presets.Count) return;
+        if (SelectedPreset != null && SelectedPreset.GenericRun != null)
+        {
+            Dalamud.Log.Debug($"Unloading {SelectedPreset.FileName}");
+            SelectedPreset.GenericRun.Dispose();
+            SelectedPreset.GenericRun = null;
+        }
+        if (Presets[idx].GenericRun == null)
+        {
+            LoadIntoRunPreset(idx);
+        }
+        SelectedPreset = Presets[idx];
+    }
+
+    public void LoadIntoRunPreset(int idx)
+    {
+        FileInfo file = new(Presets[idx].FilePath);
+        GenericRun? genericRun = ReadGenericRunFile(file);
+        string name = genericRun != null ? genericRun.Name : Presets[idx].FileName;
+        var newRun = new PresetRun(Presets[idx].FilePath, genericRun, name);
+        Presets[idx] = newRun;
+        // runPreset.GenericRun = genericRun;
     }
 
 }

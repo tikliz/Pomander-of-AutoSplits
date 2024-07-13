@@ -8,7 +8,7 @@ using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using PomanderoSplit.RunHandler;
 using PomanderoSplit.RunHandler.triggers;
-using PomanderoSplit.RunPresets;
+using PomanderoSplit.PresetRuns;
 using PomanderoSplit.Utils;
 
 namespace PomanderoSplit.Windows;
@@ -19,6 +19,7 @@ public partial class MainWindow : Window, IDisposable
     private int selectedTrigger = -1;
     bool popUpOpen = false;
     int indexObjective = 0;
+
     public void DrawMainTab()
     {
         using var tab = ImRaii.TabItem("Main");
@@ -36,18 +37,32 @@ public partial class MainWindow : Window, IDisposable
         ImGui.BeginChild("RunConfigStuff", new Vector2(180, 0), true, ImGuiWindowFlags.NoResize);
 
         ImGui.BeginGroup();
-        var selectedRun = PresetRunGrid.selectedItem?.runPreset;
-        if (selectedRun != null)
+        if (Plugin.PresetRunHandler.SelectedPreset != null)
         {
-            ImGui.Text($"{selectedRun.GenericRun.Name}");
+            ImGui.InputText("##run_name", ref PresetRunGrid.inputTextNameBuffer, 64);
         }
         else
         {
-            ImGui.Text("");
+            ImGui.InputText("##run_name", ref PresetRunGrid.inputTextNameBuffer, 64);
         }
+        ImGui.SameLine();
+        ImGui.BeginDisabled(
+            PresetRunGrid.inputTextNameBuffer.Length <= 0
+            || Plugin.PresetRunHandler.SelectedPreset == null
+            || (Plugin.PresetRunHandler.SelectedPreset.GenericRun != null
+                && PresetRunGrid.inputTextNameBuffer == Plugin.PresetRunHandler.SelectedPreset.GenericRun.Name)
+            );
+        if (ImGui.Button("Save##save_run_name"))
+        {
+            if (Plugin.PresetRunHandler.SelectedPreset?.GenericRun != null)
+            {
+                Plugin.PresetRunHandler.SelectedPreset.GenericRun.Name = PresetRunGrid.inputTextNameBuffer;
+            }
+        }
+        ImGui.EndDisabled();
         ImGui.BeginChild("TriggerList", new Vector2(150, 60), true, ImGuiWindowFlags.AlwaysAutoResize);
         int count = 0;
-        if (selectedRun != null)
+        if (Plugin.PresetRunHandler.SelectedPreset != null)
         {
             if (ImGui.Selectable($"Start Run Triggers", selectedTrigger == 0))
             {
@@ -72,8 +87,8 @@ public partial class MainWindow : Window, IDisposable
                     ImGui.OpenPopup("teste");
                 }
             }
-            var propertyInfos = typeof(Objective).GetProperties().Where(x => x.PropertyType == typeof(ITrigger[]));
-            foreach (var triggerType in propertyInfos)
+            // var propertyInfos = typeof(Objective).GetProperties().Where(x => x.PropertyType == typeof(ITrigger[]));
+            // foreach (var triggerType in propertyInfos)
             {
                 // if (ImGui.Selectable($"{triggerType.Name}##{count}", selectedTrigger == count))
                 // {
@@ -104,14 +119,27 @@ public partial class MainWindow : Window, IDisposable
         // ImGui.PushStyleColor(ImGuiCol.PopupBg, ImGui.ColorConvertFloat4ToU32(new(0, 0, 0, 0.9f)));
         if (ImGui.BeginPopup("beginTriggers_popup", ImGuiWindowFlags.AlwaysAutoResize))
         {
+            //
             popUpOpen = true;
-            ITrigger[]? triggers = selectedRun?.GenericRun.BeginRunTriggers;
+            ITrigger[]? triggers = Plugin.PresetRunHandler.SelectedPreset?.GenericRun?.BeginRunTriggers;
             if (triggers != null)
             {
                 var clone = triggers.ToList();
                 for (int i = 0; i < clone.Count; i++)
                 {
-                    ImGui.Text($"{triggers[i].GetType().Name}");
+                    ImGui.Text($"{clone[i].GetName()}");
+                    var conditionList = clone[i].GetConditions();
+                    if (ImGui.IsItemHovered() && conditionList != null)
+                    {
+                        // var conditionList = trigger.GetConditions();
+                        string tool_tip = "";
+                        foreach ((var cond, var val) in conditionList)
+                        {
+                            string temp = val ? "active" : "not active";
+                            tool_tip += $"If {cond} was {temp}\n";
+                        }
+                        ImGui.SetTooltip(tool_tip);
+                    }
                     ImGui.SameLine();
                     ImGui.SmallButton("Edit");
                     ImGui.SameLine();
@@ -120,7 +148,7 @@ public partial class MainWindow : Window, IDisposable
                         clone.RemoveAt(i);
                     }
                 }
-                selectedRun?.GenericRun.SetBeginTriggers(clone.ToArray());
+                Plugin.PresetRunHandler.SelectedPreset?.GenericRun?.SetBeginTriggers(clone.ToArray());
             }
             ImGui.Separator();
 
@@ -140,7 +168,7 @@ public partial class MainWindow : Window, IDisposable
         {
             popUpOpen = true;
 
-            Objective[]? objectives = selectedRun?.GenericRun.Objectives;
+            Objective[]? objectives = Plugin.PresetRunHandler.SelectedPreset?.GenericRun?.Objectives;
             Objective? currentObjective = objectives?[indexObjective];
             if (objectives != null)
             {
@@ -242,9 +270,9 @@ public partial class MainWindow : Window, IDisposable
             Plugin.GenericRunManager.CreateTestRun();
         }
 
-        if (ImGui.Button("Save Preset") && selectedRun != null)
+        if (ImGui.Button("Save Preset") && Plugin.PresetRunHandler.SelectedPreset != null)
         {
-            Plugin.RunPresetHandler.Save(selectedRun);
+            Plugin.PresetRunHandler.Save(Plugin.PresetRunHandler.SelectedPreset);
         }
         ImGui.EndChild();
         ImGui.EndGroup();

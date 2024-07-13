@@ -2,14 +2,15 @@ using System;
 using System.Numerics;
 using ImGuiNET;
 using PomanderoSplit.Connection;
-using PomanderoSplit.RunPresets;
+using PomanderoSplit.PresetRuns;
 
 namespace PomanderoSplit.Utils;
 
 public class PresetRunGrid
 {
     internal const int ROWSIZE = 3;
-    public static (int row, int col, RunPreset? runPreset)? selectedItem = null;
+    public static (int row, int col)? selectedItem = null;
+    public static string inputTextNameBuffer = "";
 
     internal static uint colorRed = ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0, 0, 0.2f));
     internal static uint colorWhite = ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 0.2f));
@@ -22,7 +23,7 @@ public class PresetRunGrid
         ImGui.BeginGroup();
         ImGui.BeginChild("PresetRunGrid", new Vector2(200, 0), true, ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoResize);
 
-        int itemCount = plugin.RunPresetHandler.Presets.Count;
+        int itemCount = plugin.PresetRunHandler.Presets.Count;
         int itemIdx = 0;
 
         ImDrawListPtr drawList = ImGui.GetWindowDrawList();
@@ -34,7 +35,6 @@ public class PresetRunGrid
         uint borderColor = colorWhite;
         while (itemIdx < itemCount)
         {
-            RunPreset preset = plugin.RunPresetHandler.Presets[itemIdx];
             if (itemIdx % ROWSIZE != 0)
             {
                 ImGui.SameLine();
@@ -57,9 +57,18 @@ public class PresetRunGrid
 
             Vector2 prevCursorPos = ImGui.GetCursorPos();
             ImGui.BeginGroup();
-            if (ImGui.Selectable("##" + preset.GenericRun.Name, isSelected, ImGuiSelectableFlags.None, new Vector2(47, 47)))
+            if (ImGui.Selectable($"##selectable_{itemIdx}", isSelected, ImGuiSelectableFlags.None, new Vector2(47, 47)) && !isSelected)
             {
-                selectedItem = (row, col, preset);  // Select the new item
+                // if (selectedItem != null && selectedItem.Value.runPreset.GenericRun != null)
+                // {
+                //     selectedItem.Value.runPreset.GenericRun.Dispose();
+                // }
+                // selectedItem = (row, col, preset);  // Select the new item
+                plugin.PresetRunHandler.SetSelectedPreset(itemIdx);
+                selectedItem = (row, col);
+                
+                inputTextNameBuffer = plugin.PresetRunHandler.SelectedPreset?.GenericRun?.Name == null ? "" : plugin.PresetRunHandler.SelectedPreset.GenericRun.Name;
+                
             }
             Vector2 afterCursorPos = ImGui.GetCursorPos();
 
@@ -77,7 +86,7 @@ public class PresetRunGrid
 
             ImGui.SetCursorPos(prevCursorPos);
             ImGui.PushTextWrapPos(ImGui.GetCursorPos().X + 47);
-            ImGui.TextWrapped(preset.GenericRun.Name);
+            ImGui.TextWrapped(plugin.PresetRunHandler.Presets[itemIdx].FileName);
             ImGui.PopTextWrapPos();
             ImGui.SetCursorPos(afterCursorPos);
             ImGui.EndGroup();

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 
 using PomanderoSplit.RunHandler.triggers;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace PomanderoSplit.RunHandler;
 
@@ -24,7 +24,7 @@ public class GenericRun : IDisposable
     public Objective[] Objectives { get; set; }
     public ITrigger[]? BeginRunTriggers { get; set; }
 
-    [JsonProperty]
+    [JsonInclude]
     private bool IsPreset { get; set; }
 
     public RunState Status { get; private set; } = RunState.InActive;

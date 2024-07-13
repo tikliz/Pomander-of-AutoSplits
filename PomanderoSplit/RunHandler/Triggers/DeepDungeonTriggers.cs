@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Dalamud.Game.ClientState.Conditions;
 
 namespace PomanderoSplit.RunHandler.triggers;
@@ -36,7 +36,7 @@ public class TriggerEnd : ITrigger
     public Action<bool> Finisher { get; set; } = (_) => { };
     private bool Activated { get; set; } = false;
 
-    [JsonProperty]
+    [JsonInclude]
     private List<(ConditionFlag, bool)> Flags { get; set; }
 
     public TriggerEnd(List<(ConditionFlag, bool)> flags)
@@ -76,10 +76,13 @@ public class TriggerTest : ITrigger
     public Action<bool> Finisher { get; set; } = (_) => { };
     private bool Activated { get; set; } = false;
 
-    [JsonProperty]
+    [JsonInclude]
     private List<(ConditionFlag, bool)> Flags { get; set; }
+    [JsonInclude]
     private int count = 0;
+    [JsonInclude]
     private int countMax;
+    [JsonInclude]
     private bool endSuccess;
 
     public TriggerTest(List<(ConditionFlag, bool)> flags, int countMax = 3, bool endSuccess = true)
@@ -110,6 +113,11 @@ public class TriggerTest : ITrigger
                 }
             }
         }
+    }
+
+    public List<(ConditionFlag, bool)>? GetConditions()
+    {
+        return Flags;
     }
 
     public void Dispose()

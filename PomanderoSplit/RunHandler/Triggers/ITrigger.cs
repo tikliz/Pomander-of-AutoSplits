@@ -9,12 +9,12 @@ namespace PomanderoSplit.RunHandler.triggers;
 /// this class represent an trigger.
 /// </summary>
 
-// [JsonPolymorphic(
-//     UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
-// [JsonDerivedType(typeof(TriggerOnConditionChange), nameof(TriggerOnConditionChange))]
-// [JsonDerivedType(typeof(TriggerTest), nameof(TriggerTest))]
-// [JsonDerivedType(typeof(TriggerEnd), nameof(TriggerEnd))]
-// [JsonDerivedType(typeof(Trigger), nameof(Trigger))]
+[JsonPolymorphic(
+    UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
+[JsonDerivedType(typeof(TriggerOnConditionChange), nameof(TriggerOnConditionChange))]
+[JsonDerivedType(typeof(TriggerTest), nameof(TriggerTest))]
+[JsonDerivedType(typeof(TriggerEnd), nameof(TriggerEnd))]
+[JsonDerivedType(typeof(Trigger), nameof(Trigger))]
 public interface ITrigger : IDisposable
 {
     /// <summary>

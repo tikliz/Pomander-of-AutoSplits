@@ -3,7 +3,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using PomanderoSplit.Connection;
 using PomanderoSplit.RunHandler;
-using PomanderoSplit.RunPresets;
+using PomanderoSplit.PresetRuns;
 using PomanderoSplit.Windows;
 
 namespace PomanderoSplit;
@@ -15,7 +15,7 @@ public sealed class Plugin : IDalamudPlugin
     public CommandHandler CommandHandler { get; private init; }
     public ConnectionManager ConnectionManager { get; private init; }
     public GenericRunManager GenericRunManager { get; private init; }
-    public RunPresetHandler RunPresetHandler { get; private init; }
+    public PresetRunHandler PresetRunHandler { get; private init; }
 
     public ConfigWindow ConfigWindow { get; private init; }
     public MainWindow MainWindow { get; private init; }
@@ -33,7 +33,7 @@ public sealed class Plugin : IDalamudPlugin
             ConnectionManager = new(this);
             CommandHandler = new(this);
             GenericRunManager = new(this);
-            RunPresetHandler = new();
+            PresetRunHandler = new();
 
             ConfigWindow = new(this);
             MainWindow = new(this);

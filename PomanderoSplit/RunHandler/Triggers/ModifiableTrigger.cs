@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Dalamud.Game.ClientState.Conditions;
-using Newtonsoft.Json;
 
 namespace PomanderoSplit.RunHandler.triggers;
 
@@ -11,7 +11,7 @@ public class TriggerOnConditionChange : ITrigger
     public Action<bool> Finisher { get; set; } = (_) => { };
     private bool Activated { get; set; } = false;
     
-    [JsonProperty]
+    [JsonInclude]
     private List<(ConditionFlag, bool)> Flags { get; set; }
 
     public TriggerOnConditionChange(List<(ConditionFlag, bool)> flags)
