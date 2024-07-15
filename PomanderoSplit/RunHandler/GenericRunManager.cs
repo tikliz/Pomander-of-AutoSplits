@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.ClientState.Conditions;
-
+using FFXIVClientStructs;
 using PomanderoSplit.RunHandler.triggers;
 
 namespace PomanderoSplit.RunHandler;
@@ -45,7 +45,7 @@ public class GenericRunManager : IDisposable
                     End = [new TriggerOnConditionChange([(ConditionFlag.Mounted, true)])],
                 },
             ],
-            [new TriggerOnDutyWiped([(ConditionFlag.InDeepDungeon, false)])]
+            [new TriggerOnConditionChange([(ConditionFlag.Mounted, false)])]
         );
 
 
@@ -89,22 +89,46 @@ public class GenericRunManager : IDisposable
 
         GenericRun newRun = new GenericRun(genericRun.Name, genericRun.Objectives, genericRun.BeginRunTriggers, false);
 
-        static void Onsplit(object? sender, EventArgs _)
+        void Onsplit(object? sender, EventArgs _)
         {
             var run = sender as GenericRun ?? throw new Exception("Invalid Sender");
 
             Dalamud.Chat.Print($"Name {run.Name}, On Split: {run.Splits.LastOrDefault()}");
 
+            Plugin.ConnectionManager.Split();
+
             run.OnSplit -= Onsplit;
         }
 
-        static void OnStatusChange(object? sender, EventArgs _)
+        void OnStatusChange(object? sender, EventArgs _)
         {
             var run = sender as GenericRun ?? throw new Exception("Invalid Sender");
 
             Dalamud.Chat.Print($"Name {run.Name}, On Status Change: {run.Status}");
+            switch (run.Status)
+            {
+                case RunState.InActive:
+                    Plugin.ConnectionManager.Begin();
+                    break;
+                case RunState.Paused:
+                    Plugin.ConnectionManager.Pause();
+                    break;
+                case RunState.Active:
+                    Plugin.ConnectionManager.Resume();
+                    break;
+                case RunState.Completed:
+                    Plugin.ConnectionManager.Split();
+                    break;
+                case RunState.Failed:
+                    Plugin.ConnectionManager.Pause();
+                    break;
+                case RunState.Reset:
+                    Plugin.ConnectionManager.Reset();
+                    break;
 
-            if (run.Status == RunState.Completed || run.Status == RunState.Failed)
+            }
+
+            if (run.Status == RunState.Completed || run.Status == RunState.Failed || run.Status == RunState.Reset)
             {
                 run.OnStatusChange -= OnStatusChange;
                 run.OnStatusChange -= Onsplit;
@@ -123,19 +147,20 @@ public class GenericRunManager : IDisposable
 
     public void ResetRun()
     {
+        // WIP
+        // bugged probably need to store a copy of the constructor or a deepcopy of the starting state
         var current = CurrentRun();
         if (current == null)
         {
             Dalamud.Log.Warning("GenericRunManager ResetRun: can not reset a non existing run");
             return;
         }
-
+        
         Runs.Add(new(current.Name, current.Objectives, current.BeginRunTriggers));
-        if (current.Status != RunState.Completed && current.Status != RunState.Failed) current.End(false);
+        current.Reset();
 
         Dalamud.Log.Debug($"GenericRunManager ResetRun: Done");
     }
-
     public void Dispose()
     {
         foreach (var run in Runs) run.Dispose();

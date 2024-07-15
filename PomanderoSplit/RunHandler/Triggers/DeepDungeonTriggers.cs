@@ -20,7 +20,7 @@ public class TriggerDeepDungeonFail : ITrigger
     
     private void OnConditionChange(ConditionFlag flag, bool value)
     {
-        if (flag == ConditionFlag.Unconscious && Dalamud.Conditions[ConditionFlag.InDeepDungeon] && Dalamud.Conditions[ConditionFlag.Occupied33])
+        if (flag == ConditionFlag.Unconscious && value && Dalamud.Conditions[ConditionFlag.InDeepDungeon] && Dalamud.Conditions[ConditionFlag.Occupied33])
         {
             Finisher.Invoke(false);
         }

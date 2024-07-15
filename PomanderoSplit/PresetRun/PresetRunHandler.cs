@@ -193,10 +193,10 @@ public class PresetRunHandler
                     new()
                 {
                     Name = "defaultName",
-                    Split = [new TriggerOnConditionChange([(ConditionFlag.Mounted, true)])],
+                    End = [new TriggerOnConditionChange([(ConditionFlag.Mounted, true)])],
                 },
                 ],
-                [new TriggerOnDutyWiped([(ConditionFlag.InDeepDungeon, false)])],
+                [new TriggerOnConditionChange([(ConditionFlag.Mounted, false)])],
                 true
             );
     }

@@ -15,6 +15,7 @@ public enum RunState
     Paused,
     Completed,
     Failed,
+    Reset,
 }
 
 [Serializable]
@@ -84,6 +85,8 @@ public class GenericRun : IDisposable
 
             RunStopwatch.Start();
             CurrentObjective().Init(this);
+
+            OnStatusChange.Invoke(this, EventArgs.Empty);
             Status = RunState.Active;
 
             Dalamud.Log.Debug($"GenericRun Begin, Name {Name}: Done");
@@ -146,10 +149,26 @@ public class GenericRun : IDisposable
             RunStopwatch.Stop();
             Status = CompletedSuccessfully ? RunState.Completed : RunState.Failed;
             Dispose();
-
+            
             OnStatusChange.Invoke(this, EventArgs.Empty);
 
             Dalamud.Log.Debug($"GenericRun End, Name {Name}, CompletedSuccessfully {(CompletedSuccessfully ? "true" : "false")}: Done");
+        }
+    }
+
+    public void Reset()
+    {
+        lock (runLock)
+        {
+            // if (Status == RunState.Completed || Status == RunState.Failed) throw new InvalidOperationException($"GenericRun Finish, Status {Status}: can not finish the run in this state");
+
+            RunStopwatch.Stop();
+            Status = RunState.Reset;
+            Dispose();
+            
+            OnStatusChange.Invoke(this, EventArgs.Empty);
+
+            Dalamud.Log.Debug($"GenericRun Reset, Name {Name}, Status {Status}: Done");
         }
     }
 
@@ -178,7 +197,7 @@ public class GenericRun : IDisposable
             if (BeginRunTriggers != null) foreach (var trigger in BeginRunTriggers) trigger.Dispose();
             foreach (var objective in Objectives) objective.Dispose();
 
-            if (Status != RunState.Completed && Status != RunState.Failed) End();
+            if (Status != RunState.Completed && Status != RunState.Failed && Status != RunState.Reset) End();
         }
     }
 }

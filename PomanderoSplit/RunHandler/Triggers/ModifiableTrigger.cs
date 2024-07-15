@@ -38,7 +38,7 @@ public class TriggerOnConditionChange : ITrigger
     {
         foreach (var (cflag, cval) in Flags)
         {
-            if ((flag == cflag) && (value == cval))
+            if ((flag == cflag) && (value == !cval))
             {
                 Finisher.Invoke(successfulEnd);
                 break;
