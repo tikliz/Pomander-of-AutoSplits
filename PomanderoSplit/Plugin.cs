@@ -5,6 +5,7 @@ using PomanderoSplit.Connection;
 using PomanderoSplit.RunHandler;
 using PomanderoSplit.PresetRuns;
 using PomanderoSplit.Windows;
+using Dalamud.Interface.ImGuiFileDialog;
 
 namespace PomanderoSplit;
 
@@ -16,6 +17,7 @@ public sealed class Plugin : IDalamudPlugin
     public ConnectionManager ConnectionManager { get; private init; }
     public GenericRunManager GenericRunManager { get; private init; }
     public PresetRunHandler PresetRunHandler { get; private init; }
+    public FileDialogManager FileDialogManager { get; private init; }
 
     public ConfigWindow ConfigWindow { get; private init; }
     public MainWindow MainWindow { get; private init; }
@@ -34,6 +36,10 @@ public sealed class Plugin : IDalamudPlugin
             CommandHandler = new(this);
             GenericRunManager = new(this);
             PresetRunHandler = new();
+            FileDialogManager = new()
+            {
+                AddedWindowFlags = ImGuiNET.ImGuiWindowFlags.NoCollapse | ImGuiNET.ImGuiWindowFlags.NoDocking,
+            };
 
             ConfigWindow = new(this);
             MainWindow = new(this);

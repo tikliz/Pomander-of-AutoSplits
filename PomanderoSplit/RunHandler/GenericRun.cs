@@ -153,6 +153,11 @@ public class GenericRun : IDisposable
         }
     }
 
+    public void SetObjectives(Objective[] objectives)
+    {
+        Objectives = objectives;
+    }
+
     public override string ToString()
     {
         var objectivesString = Objectives != null ? string.Join(", ", Objectives.ToString()) : "None";

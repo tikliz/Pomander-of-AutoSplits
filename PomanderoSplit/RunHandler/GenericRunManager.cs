@@ -30,22 +30,22 @@ public class GenericRunManager : IDisposable
                 new()
                 {
                     Name = "test Objective 1",
-                    Split = [new TriggerTest([(ConditionFlag.Mounted, true)], 1)],
-                    End = [new TriggerEnd([(ConditionFlag.BetweenAreas, false)])],
+                    Split = [new TriggerOnConditionChange([(ConditionFlag.Mounted, true)])],
+                    End = [new TriggerOnConditionChange([(ConditionFlag.BetweenAreas, false)])],
                 },
                 new()
                 {
                     Name = "test Objective 2",
-                    Split = [new TriggerTest([(ConditionFlag.Mounted, true)], 2)],
-                    End = [new TriggerEnd([(ConditionFlag.BetweenAreas, false)])],
+                    Split = [new TriggerOnConditionChange([(ConditionFlag.Mounted, true)])],
+                    End = [new TriggerOnConditionChange([(ConditionFlag.BetweenAreas, true)])],
                 },
                 new()
                 {
                     Name = "test Objective 3",
-                    End = [new TriggerTest([(ConditionFlag.Mounted, true)], 3, true)],
+                    End = [new TriggerOnConditionChange([(ConditionFlag.Mounted, true)])],
                 },
             ],
-            [new TriggerTest([(ConditionFlag.Mounted, false)], 0)]
+            [new TriggerOnDutyWiped([(ConditionFlag.InDeepDungeon, false)])]
         );
 
 
@@ -81,6 +81,44 @@ public class GenericRunManager : IDisposable
         Runs.Add(testRun);
 
         Dalamud.Log.Debug($"GenericRunManager CreateRun: Done {testRun.Name}");
+    }
+
+    public void CreateRunFromGenericRun(GenericRun genericRun)
+    {
+        CurrentRun()?.Dispose();
+
+        GenericRun newRun = new GenericRun(genericRun.Name, genericRun.Objectives, genericRun.BeginRunTriggers, false);
+
+        static void Onsplit(object? sender, EventArgs _)
+        {
+            var run = sender as GenericRun ?? throw new Exception("Invalid Sender");
+
+            Dalamud.Chat.Print($"Name {run.Name}, On Split: {run.Splits.LastOrDefault()}");
+
+            run.OnSplit -= Onsplit;
+        }
+
+        static void OnStatusChange(object? sender, EventArgs _)
+        {
+            var run = sender as GenericRun ?? throw new Exception("Invalid Sender");
+
+            Dalamud.Chat.Print($"Name {run.Name}, On Status Change: {run.Status}");
+
+            if (run.Status == RunState.Completed || run.Status == RunState.Failed)
+            {
+                run.OnStatusChange -= OnStatusChange;
+                run.OnStatusChange -= Onsplit;
+            };
+        }
+
+        newRun.OnSplit += Onsplit;
+        newRun.OnStatusChange += OnStatusChange;
+
+
+
+        Runs.Add(newRun);
+
+        Dalamud.Log.Debug($"GenericRunManager CreateRun: Done {newRun.Name}");
     }
 
     public void ResetRun()

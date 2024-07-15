@@ -7,8 +7,8 @@ namespace PomanderoSplit.PresetRuns;
 
 public class PresetRun
 {
-    internal string FilePath { get; set; }
-    public string FileName { get; set; }
+    public string FilePath { get; set; }
+    public string RunName { get; set; }
     public GenericRun? GenericRun { get; set; }
 
     public PresetRun(string filePath, GenericRun? genericRun, string runName = "")
@@ -17,11 +17,11 @@ public class PresetRun
         GenericRun = genericRun;
         if (genericRun != null)
         {
-            FileName = genericRun.Name;
+            RunName = genericRun.Name;
         }
         else
         {
-            FileName = runName;
+            RunName = runName;
         }
     }
 }

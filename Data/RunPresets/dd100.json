@@ -1,0 +1,480 @@
+{
+  "GenericRun": {
+    "Name": "Heaven On High - 10",
+    "Objectives": [
+      {
+        "Name": "Floor 1",
+        "Begin": null,
+        "Split": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 33,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Pause": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": false
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Resume": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "End": [
+          {
+            "$type": "TriggerDeepDungeonFail"
+          }
+        ]
+      },
+      {
+        "Name": "Floor 2",
+        "Begin": null,
+        "Split": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 33,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Pause": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": false
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Resume": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "End": [
+          {
+            "$type": "TriggerDeepDungeonFail"
+          }
+        ]
+      },
+      {
+        "Name": "Floor 3",
+        "Begin": null,
+        "Split": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 33,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Pause": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": false
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Resume": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "End": [
+          {
+            "$type": "TriggerDeepDungeonFail"
+          }
+        ]
+      },
+      {
+        "Name": "Floor 4",
+        "Begin": null,
+        "Split": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 33,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Pause": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": false
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Resume": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": false
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "End": [
+          {
+            "$type": "TriggerDeepDungeonFail"
+          }
+        ]
+      },
+      {
+        "Name": "Floor 5",
+        "Begin": null,
+        "Split": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 33,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Pause": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": false
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Resume": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "End": [
+          {
+            "$type": "TriggerDeepDungeonFail"
+          }
+        ]
+      },
+      {
+        "Name": "Floor 6",
+        "Begin": null,
+        "Split": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 33,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Pause": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": false
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Resume": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "End": [
+          {
+            "$type": "TriggerDeepDungeonFail"
+          }
+        ]
+      },
+      {
+        "Name": "Floor 7",
+        "Begin": null,
+        "Split": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 33,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Pause": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": false
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Resume": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "End": [
+          {
+            "$type": "TriggerDeepDungeonFail"
+          }
+        ]
+      },
+      {
+        "Name": "Floor 8",
+        "Begin": null,
+        "Split": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 33,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Pause": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": false
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Resume": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "End": [
+          {
+            "$type": "TriggerDeepDungeonFail"
+          }
+        ]
+      },
+      {
+        "Name": "Floor 9",
+        "Begin": null,
+        "Split": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 33,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Pause": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": false
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Resume": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "End": [
+          {
+            "$type": "TriggerDeepDungeonFail"
+          }
+        ]
+      },
+      {
+        "Name": "Floor 10",
+        "Begin": null,
+        "Split": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 33,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Pause": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": false
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "Resume": [
+          {
+            "$type": "TriggerOnConditionChange",
+            "Flags": [
+              {
+                "Item1": 45,
+                "Item2": true
+              }
+            ],
+            "successfulEnd": false
+          }
+        ],
+        "End": [
+          {
+            "$type": "TriggerOnDutyComplete",
+            "Flags": [
+              {
+                "Item1": 79,
+                "Item2": true
+              }
+            ]
+          },
+          {
+            "$type": "TriggerDeepDungeonFail"
+          }
+        ]
+      }
+    ],
+    "BeginRunTriggers": [
+      {
+        "$type": "TriggerOnDutyStarted",
+        "Flags": [
+          {
+            "Item1": 79,
+            "Item2": true
+          }
+        ]
+      }
+    ],
+    "IsPreset": true,
+    "Status": 0,
+    "Splits": []
+  }
+}

@@ -3,7 +3,7 @@ using System.Numerics;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-
+using PomanderoSplit.RunHandler.triggers;
 using PomanderoSplit.Utils;
 
 namespace PomanderoSplit.Windows;
@@ -13,6 +13,7 @@ public partial class MainWindow : Window, IDisposable
     private static int IndexRun = 0;
     
     private Plugin Plugin { get; init; }
+    private Type[] TriggerTypes { get; init; }
 
 
     public MainWindow(Plugin plugin) : base("PomanderoSplit")
@@ -24,6 +25,7 @@ public partial class MainWindow : Window, IDisposable
             MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
         };
         Plugin = plugin;
+        TriggerTypes = AllTriggers.Get();
     }
 
     public override void Draw()
