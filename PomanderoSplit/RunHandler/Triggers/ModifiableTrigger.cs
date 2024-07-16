@@ -36,6 +36,7 @@ public class TriggerOnConditionChange : ITrigger
     
     private void OnConditionChange(ConditionFlag flag, bool value)
     {
+        Dalamud.Log.Debug($"{flag} & {value}");
         foreach (var (cflag, cval) in Flags)
         {
             if ((flag == cflag) && (value == !cval))

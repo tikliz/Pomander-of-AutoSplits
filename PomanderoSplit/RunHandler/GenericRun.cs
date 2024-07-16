@@ -45,28 +45,28 @@ public class GenericRun : IDisposable
         IsPreset = isPreset;
 
         if (BeginRunTriggers != null && !IsPreset) foreach (var trigger in BeginRunTriggers)
-        {
-            try
             {
-                trigger.Activate((value) =>
+                try
                 {
-                    try
+                    trigger.Activate((value) =>
                     {
-                        Begin(); 
-                        if (BeginRunTriggers != null) foreach (var trigger in BeginRunTriggers) trigger.Dispose();
-                    }
-                    catch (Exception ex)
-                    {
-                        Dalamud.Log.Error($"Objective Trigger {name} Finisher: {ex}");
-                        Dispose();
-                    }
-                });
+                        try
+                        {
+                            Begin();
+                            if (BeginRunTriggers != null) foreach (var trigger in BeginRunTriggers) trigger.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            Dalamud.Log.Error($"Objective Trigger {name} Finisher: {ex}");
+                            Dispose();
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Dalamud.Log.Error($"Objective Trigger {name} Activation, index {Array.IndexOf(BeginRunTriggers, trigger)}: {ex}");
+                }
             }
-            catch (Exception ex)
-            {
-                Dalamud.Log.Error($"Objective Trigger {name} Activation, index {Array.IndexOf(BeginRunTriggers, trigger)}: {ex}");
-            }
-        }
     }
 
     public Objective CurrentObjective() => Objectives[Splits.Count];
@@ -101,10 +101,22 @@ public class GenericRun : IDisposable
 
             if (Splits.Count > Objectives.Length) throw new InvalidOperationException($"GenericRun Split, Name {Name}, Splits.Count {Splits.Count}: can not split the run anymore");
 
-            Splits.Add(RunStopwatch.Elapsed);
-            CurrentObjective().Init(this);
-
-            OnSplit.Invoke(this, EventArgs.Empty);
+            if (Status == RunState.Paused)
+            {
+                Status = RunState.Active;
+                OnStatusChange.Invoke(this, EventArgs.Empty);
+                Splits.Add(RunStopwatch.Elapsed);
+                CurrentObjective().Init(this);
+                OnSplit.Invoke(this, EventArgs.Empty);
+                Status = RunState.Paused;
+                OnStatusChange.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                Splits.Add(RunStopwatch.Elapsed);
+                CurrentObjective().Init(this);
+                OnSplit.Invoke(this, EventArgs.Empty);
+            }
 
             Dalamud.Log.Debug($"GenericRun Split, Name {Name}: Done");
         }
@@ -114,7 +126,8 @@ public class GenericRun : IDisposable
     {
         lock (runLock)
         {
-            if (Status != RunState.Active) throw new InvalidOperationException($"GenericRun Pause, Name {Name}, Status {Status}: can not pause the run in this state");
+            if (Status == RunState.Paused) return;
+            if (Status != RunState.Active && Status != RunState.Paused) throw new InvalidOperationException($"GenericRun Pause, Name {Name}, Status {Status}: can not pause the run in this state");
 
             RunStopwatch.Stop();
             Status = RunState.Paused;
@@ -129,7 +142,8 @@ public class GenericRun : IDisposable
     {
         lock (runLock)
         {
-            if (Status != RunState.Paused) throw new InvalidOperationException($"GenericRun Resume, Name {Name}, Status {Status}: can not resume the run in this state");
+            if (Status == RunState.Active) return;
+            if (Status != RunState.Paused && Status != RunState.Active) throw new InvalidOperationException($"GenericRun Resume, Name {Name}, Status {Status}: can not resume the run in this state");
 
             RunStopwatch.Start();
             Status = RunState.Active;
@@ -149,7 +163,7 @@ public class GenericRun : IDisposable
             RunStopwatch.Stop();
             Status = CompletedSuccessfully ? RunState.Completed : RunState.Failed;
             Dispose();
-            
+
             OnStatusChange.Invoke(this, EventArgs.Empty);
 
             Dalamud.Log.Debug($"GenericRun End, Name {Name}, CompletedSuccessfully {(CompletedSuccessfully ? "true" : "false")}: Done");
@@ -165,7 +179,7 @@ public class GenericRun : IDisposable
             RunStopwatch.Stop();
             Status = RunState.Reset;
             Dispose();
-            
+
             OnStatusChange.Invoke(this, EventArgs.Empty);
 
             Dalamud.Log.Debug($"GenericRun Reset, Name {Name}, Status {Status}: Done");

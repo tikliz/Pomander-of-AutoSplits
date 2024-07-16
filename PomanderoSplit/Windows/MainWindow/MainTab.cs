@@ -335,12 +335,25 @@ public partial class MainWindow : Window, IDisposable
                 ImGui.BeginDisabled(splitsCopyEndIdx == splitsCopyBeginIdx || splitsCopyEndIdx > objectives?.Length);
                 if (ImGui.Button("Copy##splits"))
                 {
-                    throw new NotImplementedException("MainTab, Copy splits not implemented.");
+                    // throw new NotImplementedException("MainTab, Copy splits not implemented.");
                     // WIP
-                    // var tempList = objectives!.ToList();
+                    var tempList = objectives!.ToList();
+                    for (int i = splitsCopyBeginIdx; i < splitsCopyEndIdx; i++)
+                    {
+                        tempList.Add(new Objective() 
+                        { 
+                            Name = tempList[i].Name, 
+                            Begin = tempList[i].Begin, 
+                            Split = tempList[i].Split,
+                            Pause = tempList[i].Pause,
+                            Resume = tempList[i].Resume,
+                            End = tempList[i].End,
+
+                        });
+                    }
                     // var copyList = tempList.GetRange(splitsCopyBeginIdx, splitsCopyEndIdx - splitsCopyBeginIdx);
                     // tempList.AddRange(copyList);
-                    // Plugin.PresetRunHandler.SelectedPreset!.GenericRun!.SetObjectives(tempList.ToArray());
+                    Plugin.PresetRunHandler.SelectedPreset!.GenericRun!.SetObjectives(tempList.ToArray());
                 }
                 ImGui.EndDisabled();
                 if (ImGui.IsItemHovered())
