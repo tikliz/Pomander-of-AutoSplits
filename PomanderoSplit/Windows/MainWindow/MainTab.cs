@@ -340,7 +340,8 @@ public partial class MainWindow : Window, IDisposable
                     var tempList = objectives!.ToList();
                     for (int i = splitsCopyBeginIdx; i < splitsCopyEndIdx; i++)
                     {
-                        tempList.Add(Helpers.LazyDeepCopy(tempList[i]));
+                        Objective temp = Helpers.LazyObjectiveDeepCopy(tempList[i]);
+                        tempList.Add(temp);
                     }
                     Plugin.PresetRunHandler.SelectedPreset!.GenericRun!.SetObjectives(tempList.ToArray());
                 }

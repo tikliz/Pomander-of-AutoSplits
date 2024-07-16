@@ -1,6 +1,6 @@
 {
   "GenericRun": {
-    "Name": "Heaven On High - 10",
+    "Name": "Deep Dungeon - 10",
     "Objectives": [
       {
         "Name": "Floor 1",
@@ -10,8 +10,8 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 33,
-                "Item2": true
+                "Item1": 45,
+                "Item2": false
               }
             ],
             "successfulEnd": false
@@ -22,7 +22,7 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 45,
+                "Item1": 33,
                 "Item2": false
               }
             ],
@@ -55,8 +55,8 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 33,
-                "Item2": true
+                "Item1": 45,
+                "Item2": false
               }
             ],
             "successfulEnd": false
@@ -67,7 +67,7 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 45,
+                "Item1": 33,
                 "Item2": false
               }
             ],
@@ -100,8 +100,8 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 33,
-                "Item2": true
+                "Item1": 45,
+                "Item2": false
               }
             ],
             "successfulEnd": false
@@ -112,7 +112,7 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 45,
+                "Item1": 33,
                 "Item2": false
               }
             ],
@@ -145,8 +145,8 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 33,
-                "Item2": true
+                "Item1": 45,
+                "Item2": false
               }
             ],
             "successfulEnd": false
@@ -157,7 +157,7 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 45,
+                "Item1": 33,
                 "Item2": false
               }
             ],
@@ -170,7 +170,7 @@
             "Flags": [
               {
                 "Item1": 45,
-                "Item2": false
+                "Item2": true
               }
             ],
             "successfulEnd": false
@@ -190,8 +190,8 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 33,
-                "Item2": true
+                "Item1": 45,
+                "Item2": false
               }
             ],
             "successfulEnd": false
@@ -202,7 +202,7 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 45,
+                "Item1": 33,
                 "Item2": false
               }
             ],
@@ -235,8 +235,8 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 33,
-                "Item2": true
+                "Item1": 45,
+                "Item2": false
               }
             ],
             "successfulEnd": false
@@ -247,7 +247,7 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 45,
+                "Item1": 33,
                 "Item2": false
               }
             ],
@@ -280,8 +280,8 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 33,
-                "Item2": true
+                "Item1": 45,
+                "Item2": false
               }
             ],
             "successfulEnd": false
@@ -292,7 +292,7 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 45,
+                "Item1": 33,
                 "Item2": false
               }
             ],
@@ -325,8 +325,8 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 33,
-                "Item2": true
+                "Item1": 45,
+                "Item2": false
               }
             ],
             "successfulEnd": false
@@ -337,7 +337,7 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 45,
+                "Item1": 33,
                 "Item2": false
               }
             ],
@@ -370,8 +370,8 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 33,
-                "Item2": true
+                "Item1": 45,
+                "Item2": false
               }
             ],
             "successfulEnd": false
@@ -382,7 +382,7 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 45,
+                "Item1": 33,
                 "Item2": false
               }
             ],
@@ -415,8 +415,8 @@
             "$type": "TriggerOnConditionChange",
             "Flags": [
               {
-                "Item1": 33,
-                "Item2": true
+                "Item1": 45,
+                "Item2": false
               }
             ],
             "successfulEnd": false
@@ -425,12 +425,7 @@
         "Pause": [
           {
             "$type": "TriggerOnConditionChange",
-            "Flags": [
-              {
-                "Item1": 45,
-                "Item2": false
-              }
-            ],
+            "Flags": [],
             "successfulEnd": false
           }
         ],
@@ -448,6 +443,9 @@
         ],
         "End": [
           {
+            "$type": "TriggerDeepDungeonFail"
+          },
+          {
             "$type": "TriggerOnDutyComplete",
             "Flags": [
               {
@@ -455,9 +453,6 @@
                 "Item2": true
               }
             ]
-          },
-          {
-            "$type": "TriggerDeepDungeonFail"
           }
         ]
       }
@@ -471,6 +466,16 @@
             "Item2": true
           }
         ]
+      },
+      {
+        "$type": "TriggerOnConditionChange",
+        "Flags": [
+          {
+            "Item1": 4,
+            "Item2": true
+          }
+        ],
+        "successfulEnd": false
       }
     ],
     "IsPreset": true,

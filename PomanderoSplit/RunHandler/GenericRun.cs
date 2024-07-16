@@ -105,20 +105,23 @@ public class GenericRun : IDisposable
             {
                 Status = RunState.Active;
                 OnStatusChange.Invoke(this, EventArgs.Empty);
+                CurrentObjective().Dispose();
                 Splits.Add(RunStopwatch.Elapsed);
                 CurrentObjective().Init(this);
                 OnSplit.Invoke(this, EventArgs.Empty);
                 Status = RunState.Paused;
                 OnStatusChange.Invoke(this, EventArgs.Empty);
+                Dalamud.Log.Debug($"GenericRun Split, before pause Name {Name}: Done");
             }
             else
             {
+                CurrentObjective().Dispose();
                 Splits.Add(RunStopwatch.Elapsed);
                 CurrentObjective().Init(this);
                 OnSplit.Invoke(this, EventArgs.Empty);
+                Dalamud.Log.Debug($"GenericRun Split, after pause Name {Name}: Done");
             }
 
-            Dalamud.Log.Debug($"GenericRun Split, Name {Name}: Done");
         }
     }
 

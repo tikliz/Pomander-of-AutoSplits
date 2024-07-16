@@ -96,8 +96,6 @@ public class GenericRunManager : IDisposable
             Dalamud.Chat.Print($"Name {run.Name}, On Split: {run.Splits.LastOrDefault()}");
 
             Plugin.ConnectionManager.Split();
-
-            run.OnSplit -= Onsplit;
         }
 
         void OnStatusChange(object? sender, EventArgs _)
