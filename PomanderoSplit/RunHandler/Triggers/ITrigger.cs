@@ -7,18 +7,14 @@ namespace PomanderoSplit.RunHandler.triggers;
 
 public static class AllTriggers
 {
-    public static Type[] Get()
-    {
-        List<Type> triggers = [];
-        triggers.Add(typeof(TriggerOnConditionChange));
-        triggers.Add(typeof(TriggerOnDutyStarted));
-        triggers.Add(typeof(TriggerOnDutyWiped));
-        triggers.Add(typeof(TriggerOnDutyComplete));
-        triggers.Add(typeof(TriggerDeepDungeonFail));
-        return triggers.ToArray();
-    }
-
-
+    public static Type[] Get() => 
+    [
+        typeof(TriggerOnConditionChange),
+        typeof(TriggerOnDutyStarted),
+        typeof(TriggerOnDutyWiped),
+        typeof(TriggerOnDutyComplete),
+        typeof(TriggerDeepDungeonFail)
+    ];
 }
 
 /// <summary>
@@ -43,11 +39,7 @@ public interface ITrigger : IDisposable
     public List<(ConditionFlag, bool)>? GetConditions() { return null; }
     public void SetConditions(List<(ConditionFlag, bool)> flags) { }
 
-    public string GetTypeName()
-    {
-        return this.GetType().Name;
-    }
-    
+    public string GetTypeName() => GetType().Name;
 }
 
 /*

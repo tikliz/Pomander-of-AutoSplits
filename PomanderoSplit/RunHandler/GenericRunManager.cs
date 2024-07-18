@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.ClientState.Conditions;
-using FFXIVClientStructs;
 using PomanderoSplit.RunHandler.triggers;
 
 namespace PomanderoSplit.RunHandler;
@@ -56,8 +55,6 @@ public class GenericRunManager : IDisposable
             var run = sender as GenericRun ?? throw new Exception("Invalid Sender");
 
             Dalamud.Chat.Print($"Name {run.Name}, On Split: {run.Splits.LastOrDefault()}");
-
-            run.OnSplit -= Onsplit;
         }
 
         static void OnStatusChange(object? sender, EventArgs _)
@@ -76,8 +73,6 @@ public class GenericRunManager : IDisposable
         testRun.OnSplit += Onsplit;
         testRun.OnStatusChange += OnStatusChange;
 
-
-
         Runs.Add(testRun);
 
         Dalamud.Log.Debug($"GenericRunManager CreateRun: Done {testRun.Name}");
@@ -87,7 +82,7 @@ public class GenericRunManager : IDisposable
     {
         CurrentRun()?.Dispose();
 
-        GenericRun newRun = new GenericRun(genericRun.Name, genericRun.Objectives, genericRun.BeginRunTriggers, false);
+        GenericRun newRun = new(genericRun.Name, genericRun.Objectives, genericRun.BeginRunTriggers, false);
 
         void Onsplit(object? sender, EventArgs _)
         {
@@ -136,8 +131,6 @@ public class GenericRunManager : IDisposable
         newRun.OnSplit += Onsplit;
         newRun.OnStatusChange += OnStatusChange;
 
-
-
         Runs.Add(newRun);
 
         Dalamud.Log.Debug($"GenericRunManager CreateRun: Done {newRun.Name}");
@@ -159,6 +152,7 @@ public class GenericRunManager : IDisposable
 
         Dalamud.Log.Debug($"GenericRunManager ResetRun: Done");
     }
+
     public void Dispose()
     {
         foreach (var run in Runs) run.Dispose();

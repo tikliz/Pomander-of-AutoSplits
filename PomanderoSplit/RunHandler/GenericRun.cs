@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Collections.Generic;
 
 using PomanderoSplit.RunHandler.triggers;
-using System.Text.Json.Serialization;
 
 namespace PomanderoSplit.RunHandler;
 
@@ -12,6 +11,7 @@ public enum RunState
 {
     InActive,
     Active,
+    Ready,
     Paused,
     Completed,
     Failed,
@@ -23,10 +23,9 @@ public class GenericRun : IDisposable
 {
     public string Name { get; set; }
     public Objective[] Objectives { get; set; }
-    public ITrigger[]? BeginRunTriggers { get; set; }
 
-    [JsonInclude]
-    private bool IsPreset { get; set; }
+    // before changing the BeginRunTriggers dont forget to: if (run.BeginRunTriggers != null) foreach (var trigger in run.BeginRunTriggers) trigger.Dispose();
+    public ITrigger[]? BeginRunTriggers { get; set; }
 
     public RunState Status { get; private set; } = RunState.InActive;
     public List<TimeSpan> Splits { get; private set; } = [];
@@ -37,14 +36,25 @@ public class GenericRun : IDisposable
     private readonly object runLock = new();
     private Stopwatch RunStopwatch { get; set; } = new();
 
-    public GenericRun(string name, Objective[] objectives, ITrigger[]? beginRun = null, bool isPreset = false)
+    public GenericRun(string name, Objective[] objectives, ITrigger[]? beginRun = null, bool activate = true)
     {
         Name = name;
         Objectives = objectives;
         BeginRunTriggers = beginRun;
-        IsPreset = isPreset;
+        if (activate) Activate();
+    }
 
-        if (BeginRunTriggers != null && !IsPreset) foreach (var trigger in BeginRunTriggers)
+    public Objective CurrentObjective() => Objectives[Splits.Count];
+    public TimeSpan Elapsed() => RunStopwatch.Elapsed;
+
+    public void Activate()
+    {
+        lock (runLock)
+        {
+            if (BeginRunTriggers == null) return;
+            if (Status != RunState.InActive) throw new InvalidOperationException($"GenericRun Activate, Name {Name}, Status {Status}: can not Activate the run in this state");
+
+            foreach (var trigger in BeginRunTriggers)
             {
                 try
                 {
@@ -57,24 +67,18 @@ public class GenericRun : IDisposable
                         }
                         catch (Exception ex)
                         {
-                            Dalamud.Log.Error($"Objective Trigger {name} Finisher: {ex}");
+                            Dalamud.Log.Error($"Objective Trigger {Name} Finisher: {ex}");
                             Dispose();
                         }
                     });
                 }
                 catch (Exception ex)
                 {
-                    Dalamud.Log.Error($"Objective Trigger {name} Activation, index {Array.IndexOf(BeginRunTriggers, trigger)}: {ex}");
+                    Dalamud.Log.Error($"Objective Trigger {Name} Activation, index {Array.IndexOf(BeginRunTriggers, trigger)}: {ex}");
                 }
             }
-    }
-
-    public Objective CurrentObjective() => Objectives[Splits.Count];
-    public TimeSpan Elapsed() => RunStopwatch.Elapsed;
-
-    public void SetBeginTriggers(ITrigger[] triggers)
-    {
-        this.BeginRunTriggers = triggers;
+            Status = RunState.Ready;
+        }
     }
 
     public void Begin()
@@ -121,7 +125,6 @@ public class GenericRun : IDisposable
                 OnSplit.Invoke(this, EventArgs.Empty);
                 Dalamud.Log.Debug($"GenericRun Split, after pause Name {Name}: Done");
             }
-
         }
     }
 
@@ -169,7 +172,7 @@ public class GenericRun : IDisposable
 
             OnStatusChange.Invoke(this, EventArgs.Empty);
 
-            Dalamud.Log.Debug($"GenericRun End, Name {Name}, CompletedSuccessfully {(CompletedSuccessfully ? "true" : "false")}: Done");
+            Dalamud.Log.Debug($"GenericRun End, Name {Name}, CompletedSuccessfullya {(CompletedSuccessfully ? "true" : "false")}: Done");
         }
     }
 

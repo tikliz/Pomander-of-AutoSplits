@@ -1,7 +1,6 @@
 using System.Data;
 using System.Text.Json;
 using ImGuiNET;
-using PomanderoSplit.RunHandler;
 
 namespace PomanderoSplit.Utils;
 
@@ -23,12 +22,8 @@ public static partial class Helpers
             WriteIndented = true,
             IncludeFields = true,
         };
-        string jsonString = JsonSerializer.Serialize(obj, options);
-        Objective? temp = JsonSerializer.Deserialize<Objective>(jsonString, options); 
-        if (temp == null)
-        {
-            throw new NoNullAllowedException();
-        }
+        var jsonString = JsonSerializer.Serialize(obj, options);
+        var temp = JsonSerializer.Deserialize<Objective>(jsonString, options) ?? throw new NoNullAllowedException();
         return temp;
     }
 
@@ -39,12 +34,8 @@ public static partial class Helpers
             WriteIndented = true,
             IncludeFields = true,
         };
-        string jsonString = JsonSerializer.Serialize(obj, options);
-        var temp = JsonSerializer.Deserialize<T>(jsonString);
-        if (temp == null)
-        {
-            throw new NoNullAllowedException();
-        }
+        var jsonString = JsonSerializer.Serialize(obj, options);
+        var temp = JsonSerializer.Deserialize<T>(jsonString) ?? throw new NoNullAllowedException();
         return temp;
     }
 }

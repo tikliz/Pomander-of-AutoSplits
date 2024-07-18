@@ -232,24 +232,28 @@ public partial class MainWindow : Window, IDisposable
                         clone.RemoveAt(i);
                     }
                 }
-                Plugin.PresetRunHandler.SelectedPreset?.GenericRun?.SetBeginTriggers(clone.ToArray());
+                if (Plugin.PresetRunHandler.SelectedPreset != null && Plugin.PresetRunHandler.SelectedPreset?.GenericRun != null)
+                    Plugin.PresetRunHandler.SelectedPreset.GenericRun.BeginRunTriggers = clone.ToArray();
             }
             ImGui.Separator();
 
             if (ImGui.SmallButton($"Add##beginTriggers"))
             {
-                List<ITrigger> tempList = new();
+                List<ITrigger> tempList = [];
                 if (triggers != null)
                 {
                     tempList = triggers.ToList();
                     tempList.Add(new TriggerOnConditionChange());
-                    Plugin.PresetRunHandler.SelectedPreset?.GenericRun?.SetBeginTriggers(tempList.ToArray());
+
+                    if (Plugin.PresetRunHandler.SelectedPreset != null && Plugin.PresetRunHandler.SelectedPreset?.GenericRun != null)
+                        Plugin.PresetRunHandler.SelectedPreset.GenericRun.BeginRunTriggers = tempList.ToArray();
                 }
             }
             ImGui.SameLine();
             if (ImGui.SmallButton($"Remove all##beginTriggers"))
             {
-                Plugin.PresetRunHandler.SelectedPreset?.GenericRun?.SetBeginTriggers([]);
+                if (Plugin.PresetRunHandler.SelectedPreset != null && Plugin.PresetRunHandler.SelectedPreset?.GenericRun != null)
+                    Plugin.PresetRunHandler.SelectedPreset.GenericRun.BeginRunTriggers = null;
             }
             ImGui.EndPopup();
         }
@@ -311,7 +315,7 @@ public partial class MainWindow : Window, IDisposable
                     tempObjectives.Add(new Objective() { Name = "defaultName" });
                     indexObjective = tempObjectives.Count - 1;
                     Plugin.PresetRunHandler.SelectedPreset?.GenericRun?.SetObjectives(tempObjectives.ToArray());
-                    
+
                 }
                 ImGui.SameLine();
                 ImGui.BeginDisabled(objectives?.Length <= 1);
@@ -355,16 +359,16 @@ public partial class MainWindow : Window, IDisposable
                 ImGui.PushItemWidth(35);
                 ImGui.DragInt("##rangecopy_begin", ref splitsCopyBeginIdx, 1f, 0, splitsCopyEndIdx, "%d", ImGuiSliderFlags.AlwaysClamp);
                 ImGui.PopItemWidth();
-                
-                
+
+
                 ImGui.SameLine();
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 3);
                 ImGui.PushItemWidth(35);
                 ImGui.DragInt("##rangecopy_end", ref splitsCopyEndIdx, 1f, 0, objectives!.Length, "%d", ImGuiSliderFlags.AlwaysClamp);
                 ImGui.PopItemWidth();
-                
+
                 ImGui.Separator();
-                
+
                 // WIP
                 // change this into a array for this widget later
                 var propertyInfos = typeof(Objective).GetProperties().Where(x => x.PropertyType == typeof(ITrigger[]) && x.Name != "Begin");

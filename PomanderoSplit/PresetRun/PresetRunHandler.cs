@@ -14,8 +14,8 @@ public class PresetRunHandler
 {
     public List<PresetRun> Presets = [];
     public PresetRun? SelectedPreset;
-    private string defaultPath = Dalamud.PluginInterface.ConfigDirectory.FullName + @"\run_presets\";
-    private string includedFilesPath() => Path.Combine(Dalamud.PluginInterface.AssemblyLocation.Directory?.FullName!, @"RunPresets");
+    private readonly string defaultPath = Dalamud.PluginInterface.ConfigDirectory.FullName + @"\run_presets\";
+    private static string includedFilesPath() => Path.Combine(Dalamud.PluginInterface.AssemblyLocation.Directory?.FullName!, @"RunPresets");
     private DirectoryInfo dir;
 
     private readonly object dirLock = new();
